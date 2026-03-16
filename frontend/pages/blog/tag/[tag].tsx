@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import Layout from '../../../components/layout/Layout'
 import PostCard from '../../../components/blog/PostCard'
-import { api, Post } from '../../lib/api'
+import { api, Post } from '../../../lib/api'
 
 interface Props {
   tag: string
