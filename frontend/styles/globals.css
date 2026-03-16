@@ -1,0 +1,126 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #050a0f;
+  --bg2: #080f17;
+  --surface: #0d1e2e;
+  --surface2: #112436;
+  --border: #1a3048;
+  --border2: #1f3a58;
+  --text: #e8f4ff;
+  --text2: #8ab4d4;
+  --text3: #4a7a9b;
+  --accent: #00d4ff;
+  --green: #00ff9d;
+  --purple: #a78bfa;
+  --orange: #ff8c42;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Reading progress bar */
+#reading-progress {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--purple));
+  z-index: 101;
+  transition: width 0.1s linear;
+  pointer-events: none;
+}
+
+/* Code block styling */
+pre {
+  background: var(--bg2) !important;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem !important;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px !important;
+}
+
+code:not(pre code) {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 2px 8px;
+  border-radius: 5px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.875em;
+  color: var(--accent);
+}
+
+/* Article typography */
+.article-body {
+  color: var(--text2);
+  font-size: 1.05rem;
+  line-height: 1.85;
+}
+
+.article-body h2 {
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 2.5rem 0 1rem;
+  letter-spacing: -0.5px;
+}
+
+.article-body h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 2rem 0 0.75rem;
+}
+
+.article-body p { margin-bottom: 1.5rem; }
+.article-body ul, .article-body ol { padding-left: 1.5rem; margin-bottom: 1.5rem; }
+.article-body li { margin-bottom: 0.5rem; }
+
+.article-body blockquote {
+  border-left: 3px solid var(--accent);
+  padding: 1rem 1.5rem;
+  margin: 2rem 0;
+  background: rgba(0, 212, 255, 0.04);
+  border-radius: 0 12px 12px 0;
+  font-style: italic;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+
+/* Hero grid background */
+.hero-grid {
+  background-image:
+    linear-gradient(rgba(0, 212, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+@layer utilities {
+  .text-gradient {
+    background: linear-gradient(135deg, #00d4ff 0%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .glass-card {
+    background: rgba(13, 30, 46, 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid #1a3048;
+  }
+}

@@ -1,0 +1,48 @@
+# Node
+node_modules/
+.next/
+out/
+.npm
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Env files — never commit secrets
+.env
+.env.local
+.env.production
+.env.development
+*.env
+
+# Docker volumes
+.dockerignore
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test artifacts
+test-results/
+
+# Runtime data (generated, not source)
+subscribers.json
