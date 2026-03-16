@@ -23,7 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     .map((post) => {
       const url = `${siteUrl}/blog/${post.slug}`
       const pubDate = post.date ? new Date(post.date).toUTCString() : new Date().toUTCString()
-      const tags = (post.tags || []).map((t) => `<category>${escapeXml(t)}</category>`).join('\n        ')
+     const tags = (post.tags || []).map((t: string) => `<category>${escapeXml(t)}</category>`).join('\n        ')
 
       return `
     <item>
