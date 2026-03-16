@@ -22,7 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
   const today = new Date().toISOString().split('T')[0]
 
-  let posts = []
+  let posts: any[] = []
   try {
     posts = await api.getPosts({ limit: 1000 })
   } catch {
