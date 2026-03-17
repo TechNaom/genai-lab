@@ -5,15 +5,30 @@ export default function NewsletterForm() {
   const [email, setEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!email || !email.includes('@')) {
       setError('Please enter a valid email address')
       return
     }
     setError('')
-    setSubmitted(true)
-    setEmail('')
+    setLoading(true)
+    try {
+      const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+      const res = await fetch(`${API}/api/newsletter/subscribe`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      if (!res.ok) throw new Error('Failed')
+      setSubmitted(true)
+      setEmail('')
+    } catch {
+      setError('Something went wrong. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   if (submitted) {
@@ -24,9 +39,9 @@ export default function NewsletterForm() {
         className="text-center py-4"
       >
         <div className="text-2xl mb-2">🎉</div>
-        <p className="font-semibold text-white">You're in!</p>
+        <p className="font-semibold text-white">You are in!</p>
         <p className="text-sm mt-1" style={{ color: '#8ab4d4' }}>
-          You'll be notified of new posts from the lab.
+          You will be notified of new posts from the lab.
         </p>
       </motion.div>
     )
@@ -51,12 +66,17 @@ export default function NewsletterForm() {
         />
         <motion.button
           onClick={handleSubmit}
+          disabled={loading}
           className="px-6 py-3 rounded-xl font-bold text-sm text-black border-none cursor-pointer whitespace-nowrap"
-          style={{ background: 'linear-gradient(135deg, #00d4ff, #0088cc)', fontFamily: 'Syne, sans-serif' }}
+          style={{
+            background: 'linear-gradient(135deg, #00d4ff, #0088cc)',
+            fontFamily: 'Syne, sans-serif',
+            opacity: loading ? 0.7 : 1,
+          }}
           whileHover={{ y: -1 }}
           whileTap={{ scale: 0.98 }}
         >
-          Subscribe
+          {loading ? 'Subscribing...' : 'Subscribe'}
         </motion.button>
       </div>
       {error && (
