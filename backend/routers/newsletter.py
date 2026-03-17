@@ -1,59 +1,55 @@
 """
-Newsletter router — stores subscribers and optionally syncs to an email provider.
-Replace the stub with your Mailchimp / ConvertKit / Resend integration.
+Newsletter router — stores subscribers to disk.
 """
 import os
 import json
 import re
 from pathlib import Path
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 
 router = APIRouter()
 
-SUBSCRIBERS_FILE = Path(os.getenv("POSTS_DIR", "../posts")).parent / "subscribers.json"
-
+def get_subscribers_file() -> Path:
+    """Save subscribers.json next to the posts directory."""
+    posts_dir = os.getenv("POSTS_DIR", "/data/posts")
+    path = Path(posts_dir).parent / "subscribers.json"
+    # Ensure parent directory exists
+    path.parent.mkdir(parents=True, exist_ok=True)
+    return path
 
 class SubscribeRequest(BaseModel):
     email: str
 
-
-def load_subscribers() -> list[str]:
-    if SUBSCRIBERS_FILE.exists():
-        return json.loads(SUBSCRIBERS_FILE.read_text())
+def load_subscribers() -> list:
+    f = get_subscribers_file()
+    if f.exists():
+        try:
+            return json.loads(f.read_text())
+        except Exception:
+            return []
     return []
 
-
-def save_subscribers(subs: list[str]):
-    SUBSCRIBERS_FILE.write_text(json.dumps(subs, indent=2))
-
+def save_subscribers(subs: list):
+    get_subscribers_file().write_text(json.dumps(subs, indent=2))
 
 @router.post("/subscribe")
 def subscribe(req: SubscribeRequest):
     email = req.email.strip().lower()
 
-    # Basic email validation
     if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email):
         raise HTTPException(status_code=422, detail="Invalid email address")
 
     subscribers = load_subscribers()
 
     if email in subscribers:
-        return {"status": "already_subscribed"}
+        return {"status": "already_subscribed", "message": "You are already subscribed!"}
 
     subscribers.append(email)
     save_subscribers(subscribers)
 
-    # TODO: Sync to your email provider
-    # Example with Resend:
-    # import resend
-    # resend.api_key = os.getenv("RESEND_API_KEY")
-    # resend.Contacts.create({"email": email, "audience_id": os.getenv("RESEND_AUDIENCE_ID")})
-
-    return {"status": "subscribed", "email": email}
-
+    return {"status": "subscribed", "message": "Successfully subscribed!"}
 
 @router.get("/count")
 def subscriber_count():
-    """Public endpoint showing subscriber count."""
     return {"count": len(load_subscribers())}
