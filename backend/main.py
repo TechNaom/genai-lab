@@ -3,7 +3,6 @@ Manohar's GenAI Lab — FastAPI Backend
 """
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 import os
 
 from routers import posts, auth, newsletter
@@ -14,14 +13,22 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS — allow frontend origin
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
+# CORS — explicitly allow all origins including Render frontend
+origins = [
+    "https://genai-lab-frontend.onrender.com",
+    "http://genai-lab-frontend.onrender.com",
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "*",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[FRONTEND_URL, "http://localhost:3000"],
-    allow_credentials=True,
-    allow_methods=["*"],
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 # Routers
@@ -35,4 +42,9 @@ def root():
 
 @app.get("/health")
 def health():
-    return {"status": "healthy"}
+    return {"status": "ok", "service": "GenAI Lab API"}
+
+@app.options("/{rest_of_path:path}")
+async def preflight_handler(rest_of_path: str):
+    """Handle OPTIONS preflight requests explicitly"""
+    return {"status": "ok"}
