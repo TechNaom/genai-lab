@@ -30,12 +30,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
+    // Fix: body may already be a string or an object — handle both
+    let bodyStr: string | undefined
+    if (req.method !== 'GET' && req.method !== 'DELETE') {
+      if (typeof req.body === 'string') {
+        bodyStr = req.body  // already stringified — use as-is
+      } else {
+        bodyStr = JSON.stringify(req.body)  // object — stringify it
+      }
+    }
+
     const backendRes = await fetch(url, {
       method: req.method,
       headers,
-      body: req.method !== 'GET' && req.method !== 'DELETE'
-        ? JSON.stringify(req.body)
-        : undefined,
+      body: bodyStr,
     })
 
     const text = await backendRes.text()
@@ -46,16 +54,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       data = { detail: text }
     }
 
-    // Log FULL response for debugging
     console.log(`[posts-proxy] ${req.method} ${url} → ${backendRes.status}`)
     if (backendRes.status >= 400) {
-      console.log('[posts-proxy] ERROR BODY:', JSON.stringify(data))
-      console.log('[posts-proxy] REQUEST BODY:', JSON.stringify(req.body))
+      console.log('[posts-proxy] ERROR:', JSON.stringify(data))
     }
 
     res.status(backendRes.status).json(data)
   } catch (err: any) {
     console.error('[posts-proxy] fetch error:', err.message)
-    res.status(500).json({ detail: `Proxy error: ${err.message}`, url })
+    res.status(500).json({ detail: `Proxy error: ${err.message}` })
   }
 }
