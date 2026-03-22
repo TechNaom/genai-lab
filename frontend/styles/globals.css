@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Design Tokens ─────────────────────────────────────────────────── */
 :root {
   --bg:       #050a0f;
   --bg2:      #080f17;
@@ -19,52 +18,57 @@
   --orange:   #ff8c42;
   --red:      #ff4d6d;
 
-  /* Font system — Tixly-inspired */
-  --font-display: 'Plus Jakarta Sans', sans-serif;
-  --font-body:    'Inter', system-ui, sans-serif;
+  /* Montserrat for EVERYTHING — headings + body, just different weights */
+  --font-display: 'Montserrat', sans-serif;
+  --font-body:    'Montserrat', sans-serif;
   --font-mono:    'JetBrains Mono', monospace;
 }
 
-/* ─── Base ───────────────────────────────────────────────────────────── */
 html { scroll-behavior: smooth; }
 
 body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-body);
-  font-size: 1.05rem;
+  font-size: 1rem;
+  font-weight: 400;
   line-height: 1.85;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-/* ─── Heading System — Tixly tight + confident ───────────────────────── */
+/* Montserrat headings — heavy weight, tight spacing like the reference */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
   color: var(--text);
-  line-height: 1.05;
+  line-height: 1.0;
 }
 
-/* Hero title — Tixly style: very tight, very bold, very clean */
+/* Hero H1 — Montserrat 900, very tight, like "REAL SKILLS. REAL IMPACT." */
 h1 {
-  font-weight: 800;
-  letter-spacing: -2.5px;
+  font-weight: 900;
+  letter-spacing: -1.5px;
   line-height: 1.0;
 }
 
 h2 {
-  font-weight: 700;
-  letter-spacing: -1px;
-  line-height: 1.1;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  line-height: 1.05;
 }
 
 h3 {
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: -0.3px;
-  line-height: 1.2;
+  line-height: 1.1;
 }
 
-/* ─── Reading Progress ───────────────────────────────────────────────── */
+/* Body text — Montserrat 400/500, same as reference paragraph */
+p {
+  font-family: var(--font-body);
+  font-weight: 400;
+  line-height: 1.85;
+}
+
 #reading-progress {
   position: fixed;
   top: 64px;
@@ -76,7 +80,6 @@ h3 {
   pointer-events: none;
 }
 
-/* ─── Code ───────────────────────────────────────────────────────────── */
 pre {
   background: var(--bg2) !important;
   border: 1px solid var(--border);
@@ -98,18 +101,18 @@ code:not(pre code) {
   color: var(--accent);
 }
 
-/* ─── Article Body ───────────────────────────────────────────────────── */
 .article-body {
   font-family: var(--font-body);
-  font-size: 1.1rem;
+  font-size: 1.05rem;
+  font-weight: 400;
   line-height: 1.9;
   color: var(--text2);
 }
 
 .article-body h2 {
   font-family: var(--font-display);
-  font-size: 1.7rem;
-  font-weight: 700;
+  font-size: 1.8rem;
+  font-weight: 800;
   letter-spacing: -0.5px;
   color: var(--text);
   margin: 2.5rem 0 1rem;
@@ -117,8 +120,8 @@ code:not(pre code) {
 
 .article-body h3 {
   font-family: var(--font-display);
-  font-size: 1.25rem;
-  font-weight: 600;
+  font-size: 1.3rem;
+  font-weight: 700;
   color: var(--text);
   margin: 2rem 0 0.75rem;
 }
@@ -127,7 +130,7 @@ code:not(pre code) {
 .article-body ul,
 .article-body ol        { padding-left: 1.5rem; margin-bottom: 1.5rem; }
 .article-body li        { margin-bottom: 0.5rem; }
-.article-body strong    { color: var(--text); font-weight: 600; }
+.article-body strong    { color: var(--text); font-weight: 700; }
 
 .article-body blockquote {
   border-left: 3px solid var(--accent);
@@ -138,13 +141,10 @@ code:not(pre code) {
   font-style: italic;
 }
 
-/* ─── Scrollbar ──────────────────────────────────────────────────────── */
 ::-webkit-scrollbar       { width: 5px; }
 ::-webkit-scrollbar-track { background: var(--bg2); }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--text3); }
 
-/* ─── Hero Grid ──────────────────────────────────────────────────────── */
 .hero-grid {
   background-image:
     linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
@@ -152,7 +152,6 @@ code:not(pre code) {
   background-size: 60px 60px;
 }
 
-/* ─── BofA Badge ─────────────────────────────────────────────────────── */
 .boa-badge {
   background: linear-gradient(135deg, rgba(227,24,55,0.08), rgba(167,139,250,0.06));
   border: 1px solid rgba(0,212,255,0.18);
@@ -161,10 +160,9 @@ code:not(pre code) {
 
 @keyframes badgePulse {
   0%,100% { border-color: rgba(0,212,255,0.18); }
-  50%      { border-color: rgba(0,212,255,0.38); }
+  50%      { border-color: rgba(0,212,255,0.4); }
 }
 
-/* ─── Utilities ──────────────────────────────────────────────────────── */
 @layer utilities {
   .text-gradient {
     background: linear-gradient(135deg, #00d4ff 0%, #a78bfa 100%);
