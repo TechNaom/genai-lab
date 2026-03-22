@@ -33,16 +33,27 @@ async function backendFetch(path: string, options: RequestInit = {}) {
 
 // Client-side fetch — goes through Next.js proxy (no CORS)
 async function proxyFetch(path: string, options: RequestInit = {}) {
-  const res = await fetch(path, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-    ...options,
-  })
+  let res: Response
+  try {
+    res = await fetch(path, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+      ...options,
+    })
+  } catch (networkErr: any) {
+    throw new Error('Network error: ' + (networkErr?.message || 'Failed to connect'))
+  }
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ detail: res.statusText }))
-    throw new Error(err.detail || 'API error')
+    let errMsg = `HTTP ${res.status}`
+    try {
+      const err = await res.json()
+      errMsg = err.detail || err.message || JSON.stringify(err)
+    } catch {
+      errMsg = res.statusText || errMsg
+    }
+    throw new Error(errMsg)
   }
   return res.json()
 }
