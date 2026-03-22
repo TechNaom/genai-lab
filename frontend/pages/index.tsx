@@ -30,8 +30,8 @@ const ACHIEVEMENTS = [
   { metric: '167+', label: 'Prompt scenarios validated in production' },
 ]
 
-const D = 'Montserrat, sans-serif'  // display font shorthand
-const B = 'Montserrat, sans-serif'              // body font shorthand
+const D = 'Montserrat, sans-serif'
+const B = 'Montserrat, sans-serif'
 
 interface Props { posts: Post[] }
 
@@ -46,7 +46,6 @@ export default function Home({ posts }: Props) {
         <meta name="description" content="AVP & AI Transformation Architect at Bank of America. I build AI systems, consult teams on prompt engineering, lead GenAI R&D, write about it, and teach it." />
       </Head>
 
-      {/* ── HERO — Original centered layout, Tixly font feel ── */}
       <section
         className="relative overflow-hidden flex items-center justify-center text-center px-6"
         style={{ minHeight: '96vh' }}
@@ -93,26 +92,45 @@ export default function Home({ posts }: Props) {
             <div style={{ fontSize: '11px', color: '#00d4ff', fontWeight: 600, fontFamily: B }}>AI Ignition Educator</div>
           </motion.div>
 
+          {/* HERO TITLE — fixed sizes */}
           <motion.h1
-            style={{
-              fontFamily: 'Montserrat, sans-serif',
-              fontWeight: 700,
-              fontSize: 'clamp(3.2rem, 7.5vw, 6.5rem)',
-              lineHeight: 0.95,
-              letterSpacing: '-1px',
-              textTransform: 'uppercase',
-              marginBottom: '2rem',
-              color: '#e8f4ff',
-            }}
+            style={{ fontFamily: D, marginBottom: '2rem' }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <span className="block">Manohar's</span>
-            <span className="block" style={{ color: '#00d4ff' }}>GenAI Lab.</span>
+            {/* "MANOHAR'S" — small label line */}
+            <span
+              className="block"
+              style={{
+                fontWeight: 600,
+                fontSize: 'clamp(0.85rem, 1.8vw, 1.2rem)',
+                letterSpacing: '6px',
+                textTransform: 'uppercase',
+                color: '#8ab4d4',
+                lineHeight: 1.2,
+                marginBottom: '10px',
+              }}
+            >
+              Manohar's
+            </span>
+            {/* "GENAI LAB." — the hero line, refined size */}
+            <span
+              className="block"
+              style={{
+                fontWeight: 900,
+                fontSize: 'clamp(2.5rem, 5.5vw, 4.5rem)',
+                letterSpacing: '-1px',
+                textTransform: 'uppercase',
+                lineHeight: 1.0,
+              }}
+            >
+              <span style={{ color: '#00d4ff' }}>GenAI</span>
+              <span style={{ color: '#e8f4ff' }}> Lab.</span>
+            </span>
           </motion.h1>
 
-          {/* Description — plain white Montserrat, like the reference */}
+          {/* Description — plain white Montserrat */}
           <motion.p
             className="mx-auto mb-10"
             style={{
@@ -139,18 +157,7 @@ export default function Home({ posts }: Props) {
           >
             <Link href="/blog">
               <motion.button
-                style={{
-                  background: 'linear-gradient(135deg, #00d4ff, #0088cc)',
-                  color: '#000',
-                  padding: '14px 32px',
-                  borderRadius: '12px',
-                  border: 'none',
-                  fontFamily: D,
-                  fontWeight: 700,
-                  fontSize: '15px',
-                  letterSpacing: '-0.3px',
-                  cursor: 'pointer',
-                }}
+                style={{ background: 'linear-gradient(135deg, #00d4ff, #0088cc)', color: '#000', padding: '14px 32px', borderRadius: '12px', border: 'none', fontFamily: D, fontWeight: 700, fontSize: '15px', cursor: 'pointer' }}
                 whileHover={{ y: -2, boxShadow: '0 8px 32px rgba(0,212,255,0.35)' }}
                 whileTap={{ scale: 0.97 }}
               >
@@ -159,17 +166,7 @@ export default function Home({ posts }: Props) {
             </Link>
             <Link href="/projects">
               <motion.button
-                style={{
-                  background: 'transparent',
-                  color: '#e8f4ff',
-                  padding: '14px 32px',
-                  borderRadius: '12px',
-                  border: '1px solid #1f3a58',
-                  fontFamily: D,
-                  fontWeight: 600,
-                  fontSize: '15px',
-                  cursor: 'pointer',
-                }}
+                style={{ background: 'transparent', color: '#e8f4ff', padding: '14px 32px', borderRadius: '12px', border: '1px solid #1f3a58', fontFamily: D, fontWeight: 600, fontSize: '15px', cursor: 'pointer' }}
                 whileHover={{ background: '#0d1e2e', borderColor: '#00d4ff' }}
                 whileTap={{ scale: 0.97 }}
               >
@@ -181,12 +178,7 @@ export default function Home({ posts }: Props) {
           {/* Achievement metrics */}
           <motion.div
             className="grid gap-4 mx-auto"
-            style={{
-              gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-              maxWidth: '780px',
-              paddingTop: '2rem',
-              borderTop: '1px solid rgba(26,48,72,0.8)',
-            }}
+            style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', maxWidth: '780px', paddingTop: '2rem', borderTop: '1px solid rgba(26,48,72,0.8)' }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.75 }}
@@ -200,19 +192,15 @@ export default function Home({ posts }: Props) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.75 + i * 0.1 }}
               >
-                <div style={{ fontFamily: D, fontWeight: 800, fontSize: '2rem', letterSpacing: '-1.5px', color: '#00d4ff', lineHeight: 1 }}>
-                  {a.metric}
-                </div>
-                <div style={{ fontFamily: B, fontSize: '11px', color: '#4a7a9b', lineHeight: 1.4, marginTop: '6px' }}>
-                  {a.label}
-                </div>
+                <div style={{ fontFamily: D, fontWeight: 800, fontSize: '2rem', letterSpacing: '-1.5px', color: '#00d4ff', lineHeight: 1 }}>{a.metric}</div>
+                <div style={{ fontFamily: B, fontSize: '11px', color: '#4a7a9b', lineHeight: 1.4, marginTop: '6px' }}>{a.label}</div>
               </motion.div>
             ))}
           </motion.div>
         </motion.div>
       </section>
 
-      {/* ── FIVE ROLES ── */}
+      {/* FIVE ROLES */}
       <section className="py-20 px-6" style={{ background: '#080f17', borderTop: '1px solid #1a3048' }}>
         <div className="max-w-6xl mx-auto">
           <div className="mb-12">
@@ -221,22 +209,15 @@ export default function Home({ posts }: Props) {
               What I Do
             </div>
             <h2 style={{ fontFamily: D, fontWeight: 700, fontSize: 'clamp(1.8rem,4vw,2.8rem)', letterSpacing: '-1px', color: '#e8f4ff' }}>
-              Five roles.{' '}
-              <span className="text-gradient">One mission.</span>
+              Five roles. <span style={{ color: '#00d4ff' }}>One mission.</span>
             </h2>
-            <p style={{ fontFamily: B, fontSize: '15px', color: '#8ab4d4', marginTop: '8px' }}>
-              Transform how enterprises think about and use AI.
-            </p>
+            <p style={{ fontFamily: B, fontSize: '15px', color: '#8ab4d4', marginTop: '8px' }}>Transform how enterprises think about and use AI.</p>
           </div>
           <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
             {ROLES.map((role, i) => (
-              <motion.div
-                key={role.title}
-                className="rounded-2xl p-6"
+              <motion.div key={role.title} className="rounded-2xl p-6"
                 style={{ background: '#0d1e2e', border: '1px solid #1a3048', borderTop: `3px solid ${role.color}` }}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.08 }}
+                initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
                 whileHover={{ y: -4 }}
               >
                 <div style={{ fontSize: '1.8rem', marginBottom: '10px' }}>{role.icon}</div>
@@ -248,13 +229,12 @@ export default function Home({ posts }: Props) {
         </div>
       </section>
 
-      {/* ── FEATURED ── */}
+      {/* FEATURED */}
       {featured.length > 0 && (
         <section className="max-w-6xl mx-auto px-6 py-20">
           <div className="mb-10">
             <div style={{ fontFamily: B, fontSize: '11px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: '#00d4ff', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ width: '24px', height: '1px', background: '#00d4ff', display: 'inline-block' }} />
-              Featured
+              <span style={{ width: '24px', height: '1px', background: '#00d4ff', display: 'inline-block' }} />Featured
             </div>
             <h2 style={{ fontFamily: D, fontWeight: 700, fontSize: 'clamp(1.8rem,4vw,2.8rem)', letterSpacing: '-1px', color: '#e8f4ff' }}>
               From the <span style={{ color: '#00d4ff' }}>Lab</span>
@@ -266,12 +246,11 @@ export default function Home({ posts }: Props) {
         </section>
       )}
 
-      {/* ── RECENT POSTS ── */}
+      {/* RECENT POSTS */}
       <section className="max-w-6xl mx-auto px-6 pb-20">
         <div className="mb-10">
           <div style={{ fontFamily: B, fontSize: '11px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: '#00d4ff', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ width: '24px', height: '1px', background: '#00d4ff', display: 'inline-block' }} />
-            Latest from the Lab
+            <span style={{ width: '24px', height: '1px', background: '#00d4ff', display: 'inline-block' }} />Latest from the Lab
           </div>
           <h2 style={{ fontFamily: D, fontWeight: 700, fontSize: 'clamp(1.8rem,4vw,2.8rem)', letterSpacing: '-1px', color: '#e8f4ff' }}>
             Recent <span style={{ color: '#00d4ff' }}>Articles</span>
@@ -281,9 +260,7 @@ export default function Home({ posts }: Props) {
           <div className="text-center py-16 rounded-2xl" style={{ background: '#0d1e2e', border: '1px solid #1a3048' }}>
             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔬</div>
             <h3 style={{ fontFamily: D, fontWeight: 700, fontSize: '1.2rem', color: '#e8f4ff', marginBottom: '8px' }}>Lab is warming up</h3>
-            <p style={{ fontFamily: B, color: '#8ab4d4', fontSize: '14px', marginBottom: '1.5rem' }}>
-              First articles coming soon — real systems, real code, real lessons.
-            </p>
+            <p style={{ fontFamily: B, color: '#8ab4d4', fontSize: '14px', marginBottom: '1.5rem' }}>First articles coming soon — real systems, real code, real lessons.</p>
             <Link href="/admin">
               <button style={{ background: 'linear-gradient(135deg,#00d4ff,#0088cc)', color: '#000', padding: '12px 24px', borderRadius: '12px', border: 'none', fontFamily: D, fontWeight: 700, cursor: 'pointer' }}>
                 Publish First Article →
@@ -300,22 +277,19 @@ export default function Home({ posts }: Props) {
                 <motion.button
                   style={{ background: 'transparent', border: '1px solid #1f3a58', color: '#e8f4ff', padding: '12px 32px', borderRadius: '12px', fontFamily: D, fontWeight: 600, fontSize: '14px', cursor: 'pointer' }}
                   whileHover={{ background: '#0d1e2e', borderColor: '#00d4ff' }}
-                >
-                  View All Articles →
-                </motion.button>
+                >View All Articles →</motion.button>
               </Link>
             </div>
           </>
         )}
       </section>
 
-      {/* ── RESEARCH AREAS ── */}
+      {/* RESEARCH AREAS */}
       <section className="py-20 px-6" style={{ background: '#080f17' }}>
         <div className="max-w-6xl mx-auto">
           <div className="mb-10">
             <div style={{ fontFamily: B, fontSize: '11px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: '#00d4ff', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ width: '24px', height: '1px', background: '#00d4ff', display: 'inline-block' }} />
-              Research Areas
+              <span style={{ width: '24px', height: '1px', background: '#00d4ff', display: 'inline-block' }} />Research Areas
             </div>
             <h2 style={{ fontFamily: D, fontWeight: 700, fontSize: 'clamp(1.8rem,4vw,2.8rem)', letterSpacing: '-1px', color: '#e8f4ff' }}>
               What I <span style={{ color: '#00d4ff' }}>Build & Research</span>
@@ -340,22 +314,18 @@ export default function Home({ posts }: Props) {
         </div>
       </section>
 
-      {/* ── NEWSLETTER ── */}
+      {/* NEWSLETTER */}
       <section className="max-w-6xl mx-auto px-6 py-20">
         <div className="rounded-2xl p-12 text-center" style={{ background: 'linear-gradient(135deg, #0d1e2e, #112436)', border: '1px solid #1f3a58' }}>
           <div style={{ fontSize: '2rem', marginBottom: '8px' }}>🔬</div>
-          <h2 style={{ fontFamily: D, fontWeight: 700, fontSize: '1.8rem', letterSpacing: '-0.5px', color: '#e8f4ff', marginBottom: '12px' }}>
-            Stay in the Loop
-          </h2>
+          <h2 style={{ fontFamily: D, fontWeight: 700, fontSize: '1.8rem', letterSpacing: '-0.5px', color: '#e8f4ff', marginBottom: '12px' }}>Stay in the Loop</h2>
           <p style={{ fontFamily: B, color: '#8ab4d4', maxWidth: '500px', margin: '0 auto 2rem', lineHeight: 1.7 }}>
             Enterprise AI breakdowns, prompt engineering playbooks, agentic system walkthroughs — straight from the lab.
           </p>
           <div className="flex gap-3 max-w-md mx-auto flex-wrap justify-center">
-            <input type="email" placeholder="your@email.com"
-              className="flex-1 min-w-0 px-4 py-3 rounded-xl text-sm outline-none"
+            <input type="email" placeholder="your@email.com" className="flex-1 min-w-0 px-4 py-3 rounded-xl text-sm outline-none"
               style={{ background: '#080f17', border: '1px solid #1a3048', color: '#e8f4ff', fontFamily: B }} />
-            <motion.button
-              className="px-6 py-3 rounded-xl font-bold text-sm text-black border-none cursor-pointer whitespace-nowrap"
+            <motion.button className="px-6 py-3 rounded-xl font-bold text-sm text-black border-none cursor-pointer whitespace-nowrap"
               style={{ background: 'linear-gradient(135deg, #00d4ff, #0088cc)', fontFamily: D, fontWeight: 700 }}
               whileHover={{ y: -1 }} whileTap={{ scale: 0.98 }}>
               Subscribe
