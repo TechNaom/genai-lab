@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Head from 'next/head'
 import { motion, AnimatePresence } from 'framer-motion'
 import Layout from '../../components/layout/Layout'
@@ -31,6 +31,193 @@ function Toast({ msg, onClose }: { msg: string; onClose: () => void }) {
   )
 }
 
+function ImageModal({ onInsert, onClose }: { onInsert: (md: string) => void; onClose: () => void }) {
+  const [url, setUrl] = useState('')
+  const [alt, setAlt] = useState('')
+  const inp = { width: '100%', background: '#080f17', border: '1px solid #1a3048', color: '#e8f4ff', padding: '10px 13px', borderRadius: '8px', fontFamily: 'Syne, sans-serif', fontSize: '14px', outline: 'none' }
+  const lbl = { fontSize: '11px', color: '#4a7a9b', letterSpacing: '0.5px', textTransform: 'uppercase' as const, marginBottom: '6px', display: 'block' }
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.7)' }} onClick={onClose}>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+        className="rounded-2xl p-7 w-full max-w-md"
+        style={{ background: '#0d1e2e', border: '1px solid #1a3048' }}
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="text-sm font-bold text-white mb-5">🖼️ Insert Image</div>
+        <div className="mb-4">
+          <label style={lbl}>Image URL *</label>
+          <input style={inp} value={url} onChange={e => setUrl(e.target.value)} placeholder="https://example.com/image.png" autoFocus />
+        </div>
+        <div className="mb-5">
+          <label style={lbl}>Alt Text / Caption</label>
+          <input style={inp} value={alt} onChange={e => setAlt(e.target.value)} placeholder="Describe the image..." />
+        </div>
+        {url && (
+          <div className="mb-5 rounded-xl overflow-hidden" style={{ border: '1px solid #1a3048' }}>
+            <img src={url} alt={alt} style={{ width: '100%', maxHeight: '180px', objectFit: 'cover', display: 'block' }}
+              onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+          </div>
+        )}
+        <div className="flex gap-3">
+          <button
+            onClick={() => { if (url.trim()) { onInsert(`![${alt || 'image'}](${url.trim()})`); onClose() } }}
+            disabled={!url.trim()}
+            className="flex-1 py-3 rounded-xl text-sm font-bold cursor-pointer border-none"
+            style={{ background: url.trim() ? 'linear-gradient(135deg, #00d4ff, #0088cc)' : '#1a3048', color: url.trim() ? '#000' : '#4a7a9b', fontFamily: 'Syne, sans-serif' }}
+          >Insert Image</button>
+          <button onClick={onClose} className="px-5 py-3 rounded-xl text-sm cursor-pointer"
+            style={{ background: '#112436', border: '1px solid #1f3a58', color: '#8ab4d4', fontFamily: 'Syne, sans-serif' }}>
+            Cancel
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
+function TableModal({ onInsert, onClose }: { onInsert: (md: string) => void; onClose: () => void }) {
+  const [rows, setRows] = useState(3)
+  const [cols, setCols] = useState(3)
+  const inp = { background: '#080f17', border: '1px solid #1a3048', color: '#e8f4ff', padding: '10px 13px', borderRadius: '8px', fontFamily: 'Syne, sans-serif', fontSize: '14px', outline: 'none', width: '100%' }
+  const lbl = { fontSize: '11px', color: '#4a7a9b', letterSpacing: '0.5px', textTransform: 'uppercase' as const, marginBottom: '6px', display: 'block' }
+
+  const buildTable = () => {
+    const headers = Array.from({ length: cols }, (_, i) => `Column ${i + 1}`)
+    const sep = Array.from({ length: cols }, () => '---')
+    const dataRow = Array.from({ length: cols }, () => 'Cell')
+    let md = `| ${headers.join(' | ')} |\n`
+    md += `| ${sep.join(' | ')} |\n`
+    for (let r = 0; r < rows; r++) md += `| ${dataRow.join(' | ')} |\n`
+    return md
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.7)' }} onClick={onClose}>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+        className="rounded-2xl p-7 w-full max-w-sm"
+        style={{ background: '#0d1e2e', border: '1px solid #1a3048' }}
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="text-sm font-bold text-white mb-5">📊 Insert Table</div>
+        <div className="grid grid-cols-2 gap-4 mb-5">
+          <div>
+            <label style={lbl}>Rows</label>
+            <input style={inp} type="number" min={1} max={20} value={rows} onChange={e => setRows(Math.max(1, +e.target.value))} />
+          </div>
+          <div>
+            <label style={lbl}>Columns</label>
+            <input style={inp} type="number" min={1} max={10} value={cols} onChange={e => setCols(Math.max(1, +e.target.value))} />
+          </div>
+        </div>
+        <div className="mb-5 p-3 rounded-xl overflow-x-auto" style={{ background: '#080f17', border: '1px solid #1a3048' }}>
+          <pre style={{ fontSize: '11px', color: '#4a7a9b', margin: 0, fontFamily: 'JetBrains Mono, monospace' }}>
+            {buildTable()}
+          </pre>
+        </div>
+        <div className="flex gap-3">
+          <button
+            onClick={() => { onInsert('\n' + buildTable()); onClose() }}
+            className="flex-1 py-3 rounded-xl text-sm font-bold cursor-pointer border-none"
+            style={{ background: 'linear-gradient(135deg, #00d4ff, #0088cc)', fontFamily: 'Syne, sans-serif', color: '#000' }}
+          >Insert Table</button>
+          <button onClick={onClose} className="px-5 py-3 rounded-xl text-sm cursor-pointer"
+            style={{ background: '#112436', border: '1px solid #1f3a58', color: '#8ab4d4', fontFamily: 'Syne, sans-serif' }}>
+            Cancel
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
+interface ToolbarProps {
+  onAction: (prefix: string, suffix?: string, block?: boolean, placeholder?: string) => void
+  onImageClick: () => void
+  onTableClick: () => void
+  preview: boolean
+  onTogglePreview: () => void
+}
+
+function MarkdownToolbar({ onAction, onImageClick, onTableClick, preview, onTogglePreview }: ToolbarProps) {
+  const btn = (label: string, title: string, onClick: () => void, active = false) => (
+    <button
+      key={label}
+      title={title}
+      onClick={onClick}
+      className="px-2.5 py-1.5 rounded-lg text-xs cursor-pointer transition-all select-none"
+      style={{
+        background: active ? 'rgba(0,212,255,0.15)' : 'transparent',
+        border: active ? '1px solid rgba(0,212,255,0.4)' : '1px solid transparent',
+        color: active ? '#00d4ff' : '#8ab4d4',
+        fontFamily: 'JetBrains Mono, monospace',
+      }}
+    >
+      {label}
+    </button>
+  )
+  const div = () => <span style={{ width: '1px', height: '18px', background: '#1a3048', display: 'inline-block', margin: '0 4px', verticalAlign: 'middle' }} />
+
+  return (
+    <div className="flex flex-wrap items-center gap-1 px-3 py-2 rounded-t-xl" style={{ background: '#0a1929', border: '1px solid #1a3048', borderBottom: 'none' }}>
+      {btn('H2', 'Heading 2', () => onAction('## ', '', true, 'Heading'))}
+      {btn('H3', 'Heading 3', () => onAction('### ', '', true, 'Heading'))}
+      {div()}
+      {btn('B', 'Bold', () => onAction('**', '**', false, 'bold text'))}
+      {btn('I', 'Italic', () => onAction('_', '_', false, 'italic text'))}
+      {btn('`', 'Inline code', () => onAction('`', '`', false, 'code'))}
+      {div()}
+      {btn('```', 'Code block', () => onAction('```python\n', '\n```', true, 'code here'))}
+      {btn('❝', 'Blockquote', () => onAction('> ', '', true, 'quote text'))}
+      {btn('—', 'Horizontal rule', () => onAction('\n---\n', '', true))}
+      {div()}
+      {btn('• List', 'Bullet list', () => onAction('- ', '', true, 'item'))}
+      {btn('1. List', 'Numbered list', () => onAction('1. ', '', true, 'item'))}
+      {div()}
+      {btn('🖼 Image', 'Insert image', onImageClick)}
+      {btn('📊 Table', 'Insert table', onTableClick)}
+      {div()}
+      {btn('🔗 Link', 'Insert link', () => onAction('[', '](https://)', false, 'link text'))}
+      <div className="ml-auto">
+        {btn(preview ? '✏️ Edit' : '👁 Preview', preview ? 'Back to editor' : 'Preview', onTogglePreview, preview)}
+      </div>
+    </div>
+  )
+}
+
+function MarkdownPreview({ content }: { content: string }) {
+  const lines = content.split('\n')
+  return (
+    <div style={{
+      minHeight: '320px', padding: '16px', background: '#080f17',
+      border: '1px solid #1a3048', borderRadius: '0 0 10px 10px',
+      color: '#e8f4ff', fontFamily: 'Syne, sans-serif', fontSize: '14px',
+      lineHeight: '1.7', overflowY: 'auto',
+    }}>
+      {content.trim() ? (
+        <div style={{ color: '#4a7a9b', fontSize: '11px', fontStyle: 'italic', marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #1a3048' }}>
+          Simplified preview — full render on blog page
+        </div>
+      ) : null}
+      {lines.map((line, i) => {
+        if (line.startsWith('## ')) return <h2 key={i} style={{ color: '#e8f4ff', fontSize: '20px', fontWeight: 700, margin: '20px 0 8px', borderBottom: '1px solid #1a3048', paddingBottom: '6px' }}>{line.slice(3)}</h2>
+        if (line.startsWith('### ')) return <h3 key={i} style={{ color: '#e8f4ff', fontSize: '16px', fontWeight: 600, margin: '16px 0 6px' }}>{line.slice(4)}</h3>
+        if (line.startsWith('> ')) return <blockquote key={i} style={{ borderLeft: '3px solid #00d4ff', paddingLeft: '12px', margin: '8px 0', color: '#8ab4d4', fontStyle: 'italic' }}>{line.slice(2)}</blockquote>
+        if (line.startsWith('- ') || line.startsWith('* ')) return <div key={i} style={{ color: '#8ab4d4', margin: '3px 0', paddingLeft: '16px' }}>• {line.slice(2)}</div>
+        if (/^\d+\. /.test(line)) return <div key={i} style={{ color: '#8ab4d4', margin: '3px 0', paddingLeft: '16px' }}>{line}</div>
+        if (line.startsWith('```')) return <div key={i} style={{ background: '#0d1e2e', border: '1px solid #1a3048', borderRadius: '6px', padding: '4px 10px', fontFamily: 'JetBrains Mono, monospace', fontSize: '12px', color: '#00d4ff', margin: '2px 0' }}>{line}</div>
+        if (line.startsWith('---')) return <hr key={i} style={{ border: 'none', borderTop: '1px solid #1a3048', margin: '16px 0' }} />
+        if (line.startsWith('![')) return <div key={i} style={{ margin: '8px 0', color: '#00ff9d', fontSize: '12px', fontFamily: 'JetBrains Mono, monospace' }}>{line}</div>
+        if (line.startsWith('|')) return <div key={i} style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '12px', color: '#8ab4d4', margin: '1px 0' }}>{line}</div>
+        if (line === '') return <div key={i} style={{ height: '8px' }} />
+        return <p key={i} style={{ color: '#8ab4d4', margin: '4px 0' }}>{line}</p>
+      })}
+      {!content.trim() && <div style={{ color: '#2a4a6b', fontStyle: 'italic' }}>Nothing to preview yet...</div>}
+    </div>
+  )
+}
+
 export default function AdminPage() {
   const [token, setToken] = useState<string | null>(null)
   const [loginUser, setLoginUser] = useState('admin')
@@ -40,7 +227,6 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false)
   const [toast, setToast] = useState('')
 
-  // Editor state
   const [title, setTitle] = useState('')
   const [slug, setSlug] = useState('')
   const [category, setCategory] = useState(CATEGORIES[0])
@@ -51,6 +237,10 @@ export default function AdminPage() {
   const [status, setStatus] = useState<'published' | 'draft'>('published')
   const [editingSlug, setEditingSlug] = useState<string | null>(null)
   const [editorLabel, setEditorLabel] = useState('New Article')
+  const [showImageModal, setShowImageModal] = useState(false)
+  const [showTableModal, setShowTableModal] = useState(false)
+  const [previewMode, setPreviewMode] = useState(false)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
     const saved = sessionStorage.getItem('genai_token')
@@ -58,10 +248,8 @@ export default function AdminPage() {
   }, [])
 
   const loadPosts = useCallback(async (tok: string) => {
-    try {
-      const data = await api.getAllPosts(tok)
-      setPosts(data)
-    } catch { setPosts([]) }
+    try { const data = await api.getAllPosts(tok); setPosts(data) }
+    catch { setPosts([]) }
   }, [])
 
   useEffect(() => { if (token) loadPosts(token) }, [token, loadPosts])
@@ -72,15 +260,48 @@ export default function AdminPage() {
       const res = await api.login(loginUser, loginPass)
       setToken(res.token)
       sessionStorage.setItem('genai_token', res.token)
-    } catch {
-      setLoginErr('Invalid credentials')
-    }
+    } catch { setLoginErr('Invalid credentials') }
   }
 
   const clearForm = () => {
     setTitle(''); setSlug(''); setCategory(CATEGORIES[0]); setTags('')
     setExcerpt(''); setColor('cyan'); setContent(''); setStatus('published')
-    setEditingSlug(null); setEditorLabel('New Article')
+    setEditingSlug(null); setEditorLabel('New Article'); setPreviewMode(false)
+  }
+
+  const insertMarkdown = (prefix: string, suffix = '', block = false, placeholder = '') => {
+    const ta = textareaRef.current
+    if (!ta) { setContent(prev => prev + prefix + (placeholder || '') + suffix); return }
+    const start = ta.selectionStart
+    const end = ta.selectionEnd
+    const selected = content.slice(start, end)
+    const insert = selected || placeholder || ''
+    let before = content.slice(0, start)
+    let after = content.slice(end)
+    if (block) {
+      if (before.length && !before.endsWith('\n')) before += '\n'
+      if (after.length && !after.startsWith('\n')) after = '\n' + after
+    }
+    const newContent = before + prefix + insert + suffix + after
+    setContent(newContent)
+    setTimeout(() => {
+      ta.focus()
+      const pos = before.length + prefix.length + insert.length + suffix.length
+      ta.setSelectionRange(pos, pos)
+    }, 0)
+  }
+
+  const insertRaw = (text: string) => {
+    const ta = textareaRef.current
+    if (!ta) { setContent(prev => prev + text); return }
+    const start = ta.selectionStart
+    const newContent = content.slice(0, start) + text + content.slice(start)
+    setContent(newContent)
+    setTimeout(() => {
+      ta.focus()
+      const pos = start + text.length
+      ta.setSelectionRange(pos, pos)
+    }, 0)
   }
 
   const handlePublish = async (s: 'published' | 'draft') => {
@@ -103,15 +324,11 @@ export default function AdminPage() {
       clearForm()
       await loadPosts(token)
     } catch (e: any) {
-      const msg = typeof e === 'string' ? e 
+      const msg = typeof e === 'string' ? e
         : e?.message && e.message !== '[object Object]' ? e.message
-        : e?.detail ? e.detail
-        : JSON.stringify(e)
+        : e?.detail ? e.detail : JSON.stringify(e)
       setToast(`Error: ${msg}`)
-      console.error('Publish error:', e)
-    } finally {
-      setLoading(false)
-    }
+    } finally { setLoading(false) }
   }
 
   const editPost = (p: Post) => {
@@ -123,16 +340,14 @@ export default function AdminPage() {
     setStatus((p.status as 'published' | 'draft') || 'published')
     setEditingSlug(p.slug || null)
     setEditorLabel(`Editing: ${p.title?.slice(0, 35)}...`)
+    setPreviewMode(false)
     window.scrollTo({ top: 300, behavior: 'smooth' })
   }
 
   const deletePost = async (slug: string) => {
     if (!token || !confirm('Delete this article?')) return
-    try {
-      await api.deletePost(token, slug)
-      setToast('Article deleted')
-      await loadPosts(token)
-    } catch (e: any) { setToast(`Error: ${e.message}`) }
+    try { await api.deletePost(token, slug); setToast('Article deleted'); await loadPosts(token) }
+    catch (e: any) { setToast(`Error: ${e.message}`) }
   }
 
   const inputStyle = {
@@ -157,22 +372,17 @@ export default function AdminPage() {
               <h2 className="font-bold text-lg text-white">Admin Access</h2>
               <p className="text-sm mt-1" style={{ color: '#4a7a9b' }}>Manohar's GenAI Lab Dashboard</p>
             </div>
-            {loginErr && (
-              <div className="mb-4 p-3 rounded-xl text-sm" style={{ background: 'rgba(255,77,109,0.1)', border: '1px solid rgba(255,77,109,0.2)', color: '#ff4d6d' }}>{loginErr}</div>
-            )}
+            {loginErr && <div className="mb-4 p-3 rounded-xl text-sm" style={{ background: 'rgba(255,77,109,0.1)', border: '1px solid rgba(255,77,109,0.2)', color: '#ff4d6d' }}>{loginErr}</div>}
             <div className="mb-4">
               <label style={labelStyle}>Username</label>
-              <input style={inputStyle} value={loginUser} onChange={(e) => setLoginUser(e.target.value)} placeholder="admin" />
+              <input style={inputStyle} value={loginUser} onChange={e => setLoginUser(e.target.value)} placeholder="admin" />
             </div>
             <div className="mb-6">
               <label style={labelStyle}>Password</label>
-              <input style={inputStyle} type="password" value={loginPass} onChange={(e) => setLoginPass(e.target.value)} placeholder="••••••••" onKeyDown={(e) => e.key === 'Enter' && doLogin()} />
+              <input style={inputStyle} type="password" value={loginPass} onChange={e => setLoginPass(e.target.value)} placeholder="••••••••" onKeyDown={e => e.key === 'Enter' && doLogin()} />
             </div>
-            <button
-              onClick={doLogin}
-              className="w-full py-3.5 rounded-xl font-bold text-sm text-black border-none cursor-pointer"
-              style={{ background: 'linear-gradient(135deg, #00d4ff, #0088cc)', fontFamily: 'Syne, sans-serif' }}
-            >
+            <button onClick={doLogin} className="w-full py-4 rounded-xl font-bold text-sm text-black border-none cursor-pointer"
+              style={{ background: 'linear-gradient(135deg, #00d4ff, #0088cc)', fontFamily: 'Syne, sans-serif' }}>
               Access Dashboard →
             </button>
           </motion.div>
@@ -185,6 +395,10 @@ export default function AdminPage() {
     <Layout>
       <Head><title>Admin Dashboard — Manohar's GenAI Lab</title></Head>
       <AnimatePresence>{toast && <Toast msg={toast} onClose={() => setToast('')} />}</AnimatePresence>
+      <AnimatePresence>
+        {showImageModal && <ImageModal onInsert={insertRaw} onClose={() => setShowImageModal(false)} />}
+        {showTableModal && <TableModal onInsert={insertRaw} onClose={() => setShowTableModal(false)} />}
+      </AnimatePresence>
 
       <div className="max-w-6xl mx-auto px-6 py-10">
         <div className="flex items-center justify-between mb-10 pb-6" style={{ borderBottom: '1px solid #1a3048' }}>
@@ -193,18 +407,12 @@ export default function AdminPage() {
             <p className="text-sm mt-1" style={{ color: '#4a7a9b' }}>Manage your GenAI Lab content</p>
           </div>
           <div className="flex gap-3">
-            <button
-              onClick={clearForm}
-              className="px-4 py-2 rounded-lg text-sm cursor-pointer"
-              style={{ background: '#112436', border: '1px solid #1f3a58', color: '#8ab4d4', fontFamily: 'Syne, sans-serif' }}
-            >
+            <button onClick={clearForm} className="px-4 py-2 rounded-lg text-sm cursor-pointer"
+              style={{ background: '#112436', border: '1px solid #1f3a58', color: '#8ab4d4', fontFamily: 'Syne, sans-serif' }}>
               + New Post
             </button>
-            <button
-              onClick={() => { setToken(null); sessionStorage.removeItem('genai_token') }}
-              className="px-4 py-2 rounded-lg text-sm cursor-pointer"
-              style={{ background: '#112436', border: '1px solid #1f3a58', color: '#8ab4d4', fontFamily: 'Syne, sans-serif' }}
-            >
+            <button onClick={() => { setToken(null); sessionStorage.removeItem('genai_token') }} className="px-4 py-2 rounded-lg text-sm cursor-pointer"
+              style={{ background: '#112436', border: '1px solid #1f3a58', color: '#8ab4d4', fontFamily: 'Syne, sans-serif' }}>
               Logout
             </button>
           </div>
@@ -219,69 +427,87 @@ export default function AdminPage() {
 
             <div className="mb-4">
               <label style={labelStyle}>Title *</label>
-              <input style={inputStyle} value={title} onChange={(e) => { setTitle(e.target.value); if (!editingSlug) setSlug(slugify(e.target.value)) }} placeholder="Enter article title..." />
+              <input style={inputStyle} value={title} onChange={e => { setTitle(e.target.value); if (!editingSlug) setSlug(slugify(e.target.value)) }} placeholder="Enter article title..." />
             </div>
 
             <div className="grid grid-cols-2 gap-3 mb-4">
               <div>
                 <label style={labelStyle}>Slug</label>
-                <input style={{ ...inputStyle, fontFamily: 'JetBrains Mono, monospace', fontSize: '12px' }} value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="auto-generated" />
+                <input style={{ ...inputStyle, fontFamily: 'JetBrains Mono, monospace', fontSize: '12px' }} value={slug} onChange={e => setSlug(e.target.value)} placeholder="auto-generated" />
               </div>
               <div>
                 <label style={labelStyle}>Category</label>
-                <select style={{ ...inputStyle, cursor: 'pointer', appearance: 'none' }} value={category} onChange={(e) => setCategory(e.target.value)}>
-                  {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
+                <select style={{ ...inputStyle, cursor: 'pointer', appearance: 'none' }} value={category} onChange={e => setCategory(e.target.value)}>
+                  {CATEGORIES.map(c => <option key={c}>{c}</option>)}
                 </select>
               </div>
             </div>
 
             <div className="mb-4">
               <label style={labelStyle}>Tags (comma separated)</label>
-              <input style={inputStyle} value={tags} onChange={(e) => setTags(e.target.value)} placeholder="LLM, RAG, Automation" />
+              <input style={inputStyle} value={tags} onChange={e => setTags(e.target.value)} placeholder="LLM, RAG, Automation" />
             </div>
 
             <div className="mb-4">
               <label style={labelStyle}>Excerpt</label>
-              <input style={inputStyle} value={excerpt} onChange={(e) => setExcerpt(e.target.value)} placeholder="Brief description for card preview..." />
+              <input style={inputStyle} value={excerpt} onChange={e => setExcerpt(e.target.value)} placeholder="Brief description for card preview..." />
             </div>
 
             <div className="mb-4">
               <label style={labelStyle}>Cover Color Theme</label>
-              <select style={{ ...inputStyle, cursor: 'pointer', appearance: 'none' }} value={color} onChange={(e) => setColor(e.target.value)}>
-                {COLORS.map((c) => <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>)}
+              <select style={{ ...inputStyle, cursor: 'pointer', appearance: 'none' }} value={color} onChange={e => setColor(e.target.value)}>
+                {COLORS.map(c => <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>)}
               </select>
             </div>
 
             <div>
               <label style={labelStyle}>Content (Markdown)</label>
-              <textarea
-                style={{ ...inputStyle, minHeight: '320px', resize: 'vertical', lineHeight: '1.6', fontFamily: 'JetBrains Mono, monospace', fontSize: '13px' }}
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder={`## Introduction\n\nWrite your article in Markdown...\n\n\`\`\`python\n# Code example\n\`\`\``}
+              <MarkdownToolbar
+                onAction={insertMarkdown}
+                onImageClick={() => { setPreviewMode(false); setShowImageModal(true) }}
+                onTableClick={() => { setPreviewMode(false); setShowTableModal(true) }}
+                preview={previewMode}
+                onTogglePreview={() => setPreviewMode(p => !p)}
               />
+              {previewMode ? (
+                <MarkdownPreview content={content} />
+              ) : (
+                <textarea
+                  ref={textareaRef}
+                  style={{
+                    ...inputStyle,
+                    minHeight: '320px',
+                    resize: 'vertical',
+                    lineHeight: '1.6',
+                    fontFamily: 'JetBrains Mono, monospace',
+                    fontSize: '13px',
+                    borderRadius: '0 0 10px 10px',
+                  }}
+                  value={content}
+                  onChange={e => setContent(e.target.value)}
+                  placeholder={`## Introduction\n\nWrite your article in Markdown...\n\nUse the toolbar above to insert:\n• 🖼 Images — click "Image" button\n• 📊 Tables — click "Table" button\n• Code blocks, headings, lists & more\n\n\`\`\`python\n# Code example\nprint("Hello GenAI")\n\`\`\``}
+                />
+              )}
+              <div className="flex gap-3 mt-2">
+                <span className="text-xs" style={{ color: '#2a4a6b' }}>
+                  {content.length} chars · {content.split(/\s+/).filter(Boolean).length} words · ~{Math.ceil(content.split(/\s+/).filter(Boolean).length / 200)} min read
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* Sidebar: publish + posts list */}
+          {/* Sidebar */}
           <div className="flex flex-col gap-5">
-            {/* Publish panel */}
             <div className="rounded-2xl p-6" style={{ background: '#0d1e2e', border: '1px solid #1a3048' }}>
               <div className="text-xs font-semibold tracking-widest uppercase mb-5" style={{ color: '#4a7a9b' }}>🚀 Publish</div>
-              <button
-                onClick={() => handlePublish('published')}
-                disabled={loading}
+              <button onClick={() => handlePublish('published')} disabled={loading}
                 className="w-full py-4 rounded-xl font-bold text-sm text-black border-none cursor-pointer mb-3 transition-opacity"
-                style={{ background: 'linear-gradient(135deg, #00d4ff, #0088cc)', fontFamily: 'Syne, sans-serif', opacity: loading ? 0.7 : 1 }}
-              >
+                style={{ background: 'linear-gradient(135deg, #00d4ff, #0088cc)', fontFamily: 'Syne, sans-serif', opacity: loading ? 0.7 : 1 }}>
                 {loading ? 'Publishing...' : 'Publish Article'}
               </button>
-              <button
-                onClick={() => handlePublish('draft')}
-                disabled={loading}
+              <button onClick={() => handlePublish('draft')} disabled={loading}
                 className="w-full py-3 rounded-xl font-semibold text-sm cursor-pointer mb-5 transition-all"
-                style={{ background: '#112436', border: '1px solid #1f3a58', color: '#8ab4d4', fontFamily: 'Syne, sans-serif' }}
-              >
+                style={{ background: '#112436', border: '1px solid #1f3a58', color: '#8ab4d4', fontFamily: 'Syne, sans-serif' }}>
                 Save as Draft
               </button>
               <div className="text-xs leading-loose" style={{ color: '#4a7a9b' }}>
@@ -293,43 +519,48 @@ export default function AdminPage() {
               </div>
             </div>
 
-            {/* Posts list */}
+            <div className="rounded-2xl p-6" style={{ background: '#0d1e2e', border: '1px solid #1a3048' }}>
+              <div className="text-xs font-semibold tracking-widest uppercase mb-4" style={{ color: '#4a7a9b' }}>📝 Markdown Tips</div>
+              <div className="text-xs leading-relaxed" style={{ color: '#4a7a9b' }}>
+                {[
+                  ['## Heading', 'H2 section'],
+                  ['**bold**', 'Bold text'],
+                  ['_italic_', 'Italic text'],
+                  ['`code`', 'Inline code'],
+                  ['![alt](url)', '→ Image'],
+                  ['| col | col |', '→ Table row'],
+                  ['> quote', 'Blockquote'],
+                ].map(([syntax, desc]) => (
+                  <div key={syntax} className="flex justify-between py-1.5" style={{ borderBottom: '1px solid #0d1e2e' }}>
+                    <span style={{ color: '#00d4ff', fontFamily: 'JetBrains Mono, monospace' }}>{syntax}</span>
+                    <span style={{ color: '#2a4a6b' }}>{desc}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div className="rounded-2xl p-6 flex-1" style={{ background: '#0d1e2e', border: '1px solid #1a3048' }}>
               <div className="text-xs font-semibold tracking-widest uppercase mb-5" style={{ color: '#4a7a9b' }}>📋 All Posts ({posts.length})</div>
               <div className="flex flex-col gap-3 max-h-96 overflow-y-auto">
                 {posts.length === 0 ? (
                   <div className="text-center py-8 text-sm" style={{ color: '#4a7a9b' }}>No posts yet. Create your first!</div>
-                ) : posts.map((p) => (
+                ) : posts.map(p => (
                   <div key={p.slug} className="flex items-center justify-between gap-3 p-3 rounded-xl" style={{ background: '#080f17', border: '1px solid #1a3048' }}>
                     <div className="min-w-0 flex-1">
                       <div className="text-sm font-semibold text-white truncate">{p.title}</div>
                       <div className="text-xs mt-0.5 flex items-center gap-2" style={{ color: '#4a7a9b' }}>
                         {formatDate(p.date)}
                         <span className="text-xs px-2 py-0.5 rounded-full font-semibold"
-                          style={{
-                            background: p.status === 'published' ? 'rgba(0,255,157,0.1)' : 'rgba(255,140,66,0.1)',
-                            color: p.status === 'published' ? '#00ff9d' : '#ff8c42',
-                          }}
-                        >
+                          style={{ background: p.status === 'published' ? 'rgba(0,255,157,0.1)' : 'rgba(255,140,66,0.1)', color: p.status === 'published' ? '#00ff9d' : '#ff8c42' }}>
                           {p.status}
                         </span>
                       </div>
                     </div>
                     <div className="flex gap-2 flex-shrink-0">
-                      <button
-                        onClick={() => editPost(p)}
-                        className="px-3 py-1.5 rounded-lg text-xs cursor-pointer transition-all"
-                        style={{ background: '#112436', border: '1px solid #1f3a58', color: '#8ab4d4', fontFamily: 'Syne, sans-serif' }}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => deletePost(p.slug!)}
-                        className="px-3 py-1.5 rounded-lg text-xs cursor-pointer transition-all"
-                        style={{ background: 'rgba(255,77,109,0.1)', border: '1px solid rgba(255,77,109,0.2)', color: '#ff4d6d', fontFamily: 'Syne, sans-serif' }}
-                      >
-                        Del
-                      </button>
+                      <button onClick={() => editPost(p)} className="px-3 py-1.5 rounded-lg text-xs cursor-pointer"
+                        style={{ background: '#112436', border: '1px solid #1f3a58', color: '#8ab4d4', fontFamily: 'Syne, sans-serif' }}>Edit</button>
+                      <button onClick={() => deletePost(p.slug!)} className="px-3 py-1.5 rounded-lg text-xs cursor-pointer"
+                        style={{ background: 'rgba(255,77,109,0.1)', border: '1px solid rgba(255,77,109,0.2)', color: '#ff4d6d', fontFamily: 'Syne, sans-serif' }}>Del</button>
                     </div>
                   </div>
                 ))}
