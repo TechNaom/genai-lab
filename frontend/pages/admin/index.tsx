@@ -103,7 +103,12 @@ export default function AdminPage() {
       clearForm()
       await loadPosts(token)
     } catch (e: any) {
-      setToast(`Error: ${e.message}`)
+      const msg = typeof e === 'string' ? e 
+        : e?.message && e.message !== '[object Object]' ? e.message
+        : e?.detail ? e.detail
+        : JSON.stringify(e)
+      setToast(`Error: ${msg}`)
+      console.error('Publish error:', e)
     } finally {
       setLoading(false)
     }
