@@ -99,6 +99,52 @@ export default function ArticlePage({ post, related }: Props) {
                 table({ children }: any) { return <div style={{ overflowX:'auto', margin:'1.5rem 0' }}><table style={{ width:'100%', borderCollapse:'collapse' }}>{children}</table></div> },
                 th({ children }: any) { return <th style={{ padding:'10px 16px', textAlign:'left', background:'#112436', color:'#e8f4ff', fontSize:'13px', fontWeight:600, border:'1px solid #1a3048' }}>{children}</th> },
                 td({ children }: any) { return <td style={{ padding:'10px 16px', fontSize:'14px', color:'#8ab4d4', border:'1px solid #1a3048' }}>{children}</td> },
+                tr({ children }: any) { return <tr style={{ borderBottom:'1px solid #1a3048' }}>{children}</tr> },
+                img({ src, alt }: any) {
+                  return (
+                    <span style={{ display:'block', margin:'2rem 0', textAlign:'center' }}>
+                      <img
+                        src={src}
+                        alt={alt || ''}
+                        style={{
+                          maxWidth:'100%',
+                          borderRadius:'12px',
+                          border:'1px solid #1a3048',
+                          boxShadow:'0 4px 24px rgba(0,0,0,0.3)',
+                        }}
+                      />
+                      {alt && (
+                        <span style={{ display:'block', fontSize:'13px', color:'#4a7a9b', marginTop:'8px', fontStyle:'italic' }}>
+                          {alt}
+                        </span>
+                      )}
+                    </span>
+                  )
+                },
+                a({ href, children }: any) {
+                  return (
+                    <a href={href} target="_blank" rel="noopener noreferrer"
+                      style={{ color:'#00d4ff', textDecoration:'underline', textUnderlineOffset:'3px' }}>
+                      {children}
+                    </a>
+                  )
+                },
+                blockquote({ children }: any) {
+                  return (
+                    <blockquote style={{
+                      borderLeft:'3px solid #00d4ff',
+                      paddingLeft:'1.5rem',
+                      margin:'2rem 0',
+                      background:'rgba(0,212,255,0.04)',
+                      borderRadius:'0 12px 12px 0',
+                      padding:'1rem 1.5rem',
+                      fontStyle:'italic',
+                      color:'#8ab4d4',
+                    }}>
+                      {children}
+                    </blockquote>
+                  )
+                },
               }}
             >{post.content || ''}</ReactMarkdown>
           </div>
