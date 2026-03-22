@@ -115,13 +115,13 @@ export default function Home({ posts }: Props) {
           >
             <span
               className="block"
-              style={{ fontSize: 'clamp(3rem, 8vw, 5.8rem)', fontWeight: 700, color: '#e8f4ff' }}
+              style={{ fontSize: 'clamp(2.8rem, 6.5vw, 5rem)', fontWeight: 600, color: '#e8f4ff' }}
             >
               Manohar's
             </span>
             <span
               className="block"
-              style={{ fontSize: 'clamp(3.5rem, 9.5vw, 7rem)', fontWeight: 800, letterSpacing: '-4px', lineHeight: 1.0 }}
+              style={{ fontSize: 'clamp(3rem, 7vw, 5.5rem)', fontWeight: 800, letterSpacing: '-2.5px', lineHeight: 1.0 }}
             >
               <span className="text-gradient">GenAI</span>
               <span style={{ color: '#e8f4ff' }}> Lab</span>
