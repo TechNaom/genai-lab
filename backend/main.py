@@ -10,7 +10,7 @@ from routers import posts, auth, newsletter
 app = FastAPI(
     title="Manohar's GenAI Lab API",
     description="Backend API for the GenAI Lab blog platform",
-    version="1.0.0"
+    version="1.0.0",
 )
 
 app.add_middleware(
