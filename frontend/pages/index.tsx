@@ -96,68 +96,39 @@ export default function Home({ posts }: Props) {
           <motion.h1
             style={{
               fontFamily: 'Montserrat, sans-serif',
+              fontWeight: 900,
+              fontSize: 'clamp(3.2rem, 7.5vw, 6.5rem)',
               lineHeight: 0.95,
               letterSpacing: '-1px',
-              marginBottom: '2rem',
               textTransform: 'uppercase',
+              marginBottom: '2rem',
+              color: '#e8f4ff',
             }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <span
-              className="block"
-              style={{ fontSize: 'clamp(2.5rem, 6vw, 4.8rem)', fontWeight: 900, color: '#e8f4ff' }}
-            >
-              Manohar's
-            </span>
-            <span
-              className="block"
-              style={{ fontSize: 'clamp(2.8rem, 7vw, 5.8rem)', fontWeight: 900, lineHeight: 0.95 }}
-            >
-              <span className="text-gradient">GenAI</span>
-              <span style={{ color: '#e8f4ff' }}> Lab</span>
-            </span>
+            <span className="block">Manohar's</span>
+            <span className="block" style={{ color: '#00d4ff' }}>GenAI</span>
+            <span className="block">Lab.</span>
           </motion.h1>
 
-          {/* Description — sharp, complete, Inter */}
+          {/* Description — plain white Montserrat, like the reference */}
           <motion.p
-            className="mx-auto mb-3"
+            className="mx-auto mb-10"
             style={{
               fontFamily: B,
-              fontSize: 'clamp(1rem, 2vw, 1.15rem)',
-              color: '#e8f4ff',
-              maxWidth: '760px',
-              lineHeight: 1.75,
-              fontWeight: 500,
+              fontSize: '16px',
+              color: '#ffffff',
+              maxWidth: '680px',
+              lineHeight: 1.8,
+              fontWeight: 400,
             }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.45 }}
           >
-            I build AI systems, consult BofA teams on{' '}
-            <span style={{ color: '#a78bfa', fontWeight: 700 }}>prompt engineering</span>{' '}
-            and automation, lead{' '}
-            <span style={{ color: '#00ff9d', fontWeight: 700 }}>GenAI R&D</span>,
-            write about what I learn, and teach it — all inside{' '}
-            <span style={{ color: '#00d4ff', fontWeight: 700 }}>Bank of America</span>.
-          </motion.p>
-
-          <motion.p
-            className="mx-auto mb-10"
-            style={{
-              fontFamily: B,
-              fontSize: 'clamp(0.875rem, 1.6vw, 1rem)',
-              color: '#8ab4d4',
-              maxWidth: '620px',
-              lineHeight: 1.85,
-            }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.52 }}
-          >
-            Python · Agentic pipelines · RAG systems · LLM frameworks · DevOps for AI.{' '}
-            <span style={{ color: '#a78bfa', fontWeight: 600 }}>Battle-tested. No fluff.</span>
+            I build AI systems, consult BofA teams on prompt engineering and automation, lead GenAI R&D, write about what I learn, and teach it — all inside Bank of America. Python · Agentic pipelines · RAG · LLM frameworks · DevOps for AI.
           </motion.p>
 
           {/* CTAs */}
