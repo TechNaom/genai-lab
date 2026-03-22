@@ -10,6 +10,7 @@ interface LayoutProps {
 
 function ReadingProgress() {
   const [progress, setProgress] = useState(0)
+
   useEffect(() => {
     const update = () => {
       const h = document.documentElement.scrollHeight - window.innerHeight
@@ -18,10 +19,18 @@ function ReadingProgress() {
     window.addEventListener('scroll', update)
     return () => window.removeEventListener('scroll', update)
   }, [])
+
   return (
     <div
-      id="reading-progress"
-      style={{ width: `${progress}%` }}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        height: '3px',
+        width: `${progress}%`,
+        background: '#ffffff',
+        zIndex: 100,
+      }}
     />
   )
 }
@@ -49,41 +58,40 @@ export default function Layout({ children, showProgress }: LayoutProps) {
     href === '/' ? router.pathname === '/' : router.pathname.startsWith(href)
 
   return (
-    <>
+    <div className="bg-[#0a0a0a] text-white min-h-screen">
       {showProgress && <ReadingProgress />}
 
-      {/* Navbar */}
+      {/* NAVBAR */}
       <nav
         className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
         style={{
-          background: scrolled ? 'rgba(5,10,15,0.92)' : 'rgba(5,10,15,0.7)',
-          backdropFilter: 'blur(20px)',
-          borderBottom: '1px solid #1a3048',
+          background: scrolled ? 'rgba(10,10,10,0.95)' : 'rgba(10,10,10,0.7)',
+          backdropFilter: 'blur(12px)',
+          borderBottom: '1px solid #222',
           height: '64px',
         }}
       >
-        <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
-          {/* Logo */}
+        <div className="max-w-5xl mx-auto px-6 h-full flex items-center justify-between">
+          {/* LOGO */}
           <Link href="/" className="flex items-center gap-3 no-underline">
-            <div
-              className="w-9 h-9 rounded-lg flex items-center justify-center font-black text-sm text-black"
-              style={{ background: 'linear-gradient(135deg, #00d4ff, #a78bfa)' }}
-            >
-              MP
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-sm bg-white text-black">
+              ML
             </div>
-            <span className="font-bold text-base tracking-tight text-white">
-              Manohar's <span className="text-accent">GenAI</span> Lab
+            <span className="font-semibold text-base tracking-tight text-white">
+              GenAI Lab
             </span>
           </Link>
 
-          {/* Desktop links */}
+          {/* DESKTOP NAV */}
           <ul className="hidden md:flex gap-8 list-none m-0 p-0">
             {navLinks.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="text-sm font-medium tracking-wide no-underline transition-colors duration-200"
-                  style={{ color: isActive(link.href) ? '#e8f4ff' : '#8ab4d4' }}
+                  className="text-sm font-medium no-underline transition-colors"
+                  style={{
+                    color: isActive(link.href) ? '#ffffff' : '#9ca3af',
+                  }}
                 >
                   {link.label}
                 </Link>
@@ -91,22 +99,18 @@ export default function Layout({ children, showProgress }: LayoutProps) {
             ))}
           </ul>
 
+          {/* RIGHT SIDE */}
           <div className="flex items-center gap-3">
             <Link
               href="/admin"
-              className="hidden md:inline-flex items-center gap-2 text-xs font-semibold no-underline transition-all duration-200 px-4 py-2 rounded-lg"
-              style={{
-                background: '#112436',
-                border: '1px solid #1f3a58',
-                color: '#00d4ff',
-              }}
+              className="hidden md:inline-flex items-center text-xs font-medium px-4 py-2 rounded-lg border border-zinc-700 text-zinc-300 hover:bg-zinc-800 transition"
             >
-              Admin ⌘
+              Admin
             </Link>
 
-            {/* Mobile hamburger */}
+            {/* MOBILE MENU BUTTON */}
             <button
-              className="md:hidden text-white bg-transparent border-none cursor-pointer"
+              className="md:hidden text-white"
               onClick={() => setMobileOpen(!mobileOpen)}
             >
               {mobileOpen ? '✕' : '☰'}
@@ -114,69 +118,78 @@ export default function Layout({ children, showProgress }: LayoutProps) {
           </div>
         </div>
 
-        {/* Mobile menu */}
+        {/* MOBILE MENU */}
         <AnimatePresence>
           {mobileOpen && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="md:hidden absolute top-full left-0 right-0 py-4 px-6"
-              style={{ background: '#080f17', borderBottom: '1px solid #1a3048' }}
+              className="md:hidden absolute top-full left-0 right-0 px-6 py-4"
+              style={{
+                background: '#0a0a0a',
+                borderBottom: '1px solid #222',
+              }}
             >
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   className="block py-3 text-sm no-underline"
-                  style={{ color: isActive(link.href) ? '#00d4ff' : '#8ab4d4' }}
+                  style={{
+                    color: isActive(link.href) ? '#ffffff' : '#9ca3af',
+                  }}
                   onClick={() => setMobileOpen(false)}
                 >
                   {link.label}
                 </Link>
               ))}
+
               <Link
                 href="/admin"
-                className="block py-3 text-sm no-underline"
-                style={{ color: '#00d4ff' }}
+                className="block py-3 text-sm no-underline text-white"
                 onClick={() => setMobileOpen(false)}
               >
-                Admin ⌘
+                Admin
               </Link>
             </motion.div>
           )}
         </AnimatePresence>
       </nav>
 
-      {/* Page content */}
-      <main style={{ paddingTop: '64px', minHeight: '100vh' }}>
-        {children}
+      {/* MAIN CONTENT */}
+      <main style={{ paddingTop: '64px' }}>
+        <div className="max-w-3xl mx-auto px-6 py-12">
+          <div className="prose prose-invert max-w-none">
+            {children}
+          </div>
+        </div>
       </main>
 
-      {/* Footer */}
+      {/* FOOTER */}
       <footer
         className="text-center py-12 px-6 mt-16"
-        style={{ background: '#080f17', borderTop: '1px solid #1a3048' }}
+        style={{
+          background: '#0a0a0a',
+          borderTop: '1px solid #222',
+        }}
       >
-        <div className="font-bold text-lg tracking-tight mb-3 text-white">
-          Manohar's <span className="text-accent">GenAI</span> Lab
+        <div className="font-semibold text-lg mb-3">
+          GenAI Lab
         </div>
-        <div className="flex gap-8 justify-center mb-4 flex-wrap">
+
+        <div className="flex gap-6 justify-center mb-4 flex-wrap text-sm text-zinc-500">
           {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-sm no-underline transition-colors duration-200"
-              style={{ color: '#4a7a9b' }}
-            >
+            <Link key={link.href} href={link.href}>
               {link.label}
             </Link>
           ))}
         </div>
-        <div className="text-xs" style={{ color: '#4a7a9b' }}>
-          © {new Date().getFullYear()} Manohar Papasani · GenAI Automation Lead & Mentor
+
+        <div className="text-xs text-zinc-600">
+          © {new Date().getFullYear()} Manohar — Building GenAI systems
         </div>
       </footer>
-    </>
+    </div>
   )
 }
