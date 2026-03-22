@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import Layout from '../components/layout/Layout'
 import PostCard from '../components/blog/PostCard'
-import { api, Post } from '../lib/api'
+import NewsletterForm from '../components/ui/NewsletterForm'
 
 const CATEGORIES = [
   { name: 'AI Automation', emoji: '🤖', color: '#00d4ff' },
@@ -322,15 +322,7 @@ export default function Home({ posts }: Props) {
           <p style={{ fontFamily: B, color: '#8ab4d4', maxWidth: '500px', margin: '0 auto 2rem', lineHeight: 1.7 }}>
             Enterprise AI breakdowns, prompt engineering playbooks, agentic system walkthroughs — straight from the lab.
           </p>
-          <div className="flex gap-3 max-w-md mx-auto flex-wrap justify-center">
-            <input type="email" placeholder="your@email.com" className="flex-1 min-w-0 px-4 py-3 rounded-xl text-sm outline-none"
-              style={{ background: '#080f17', border: '1px solid #1a3048', color: '#e8f4ff', fontFamily: B }} />
-            <motion.button className="px-6 py-3 rounded-xl font-bold text-sm text-black border-none cursor-pointer whitespace-nowrap"
-              style={{ background: 'linear-gradient(135deg, #00d4ff, #0088cc)', fontFamily: D, fontWeight: 700 }}
-              whileHover={{ y: -1 }} whileTap={{ scale: 0.98 }}>
-              Subscribe
-            </motion.button>
-          </div>
+          <NewsletterForm />
         </div>
       </section>
     </Layout>
