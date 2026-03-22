@@ -2,9 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Design System Tokens ──────────────────────────────────────────── */
+/* ─── Design Tokens ─────────────────────────────────────────────────── */
 :root {
-  /* Colors */
   --bg:       #050a0f;
   --bg2:      #080f17;
   --surface:  #0d1e2e;
@@ -20,60 +19,52 @@
   --orange:   #ff8c42;
   --red:      #ff4d6d;
 
-  /* Font roles — intentional, not decorative */
-  --font-display: 'Bricolage Grotesque', sans-serif; /* Hero titles, section headings */
-  --font-body:    'Inter', system-ui, sans-serif;     /* All body copy, UI labels      */
-  --font-mono:    'JetBrains Mono', monospace;        /* Code only                     */
-
-  /* Typography scale */
-  --text-hero:    clamp(3.2rem, 9vw, 6.5rem);
-  --text-h1:      clamp(2rem, 5vw, 3.2rem);
-  --text-h2:      clamp(1.6rem, 3vw, 2rem);
-  --text-h3:      1.25rem;
-  --text-body:    1.1rem;
-  --text-small:   0.875rem;
-  --text-label:   0.6875rem; /* 11px */
+  /* Font system — Tixly-inspired */
+  --font-display: 'Plus Jakarta Sans', sans-serif;
+  --font-body:    'Inter', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
 }
 
-/* ─── Base Reset ─────────────────────────────────────────────────────── */
+/* ─── Base ───────────────────────────────────────────────────────────── */
 html { scroll-behavior: smooth; }
 
 body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-body);
-  font-size: var(--text-body);
-  line-height: 1.9;
+  font-size: 1.05rem;
+  line-height: 1.85;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ─── Heading System ─────────────────────────────────────────────────── */
+/* ─── Heading System — Tixly tight + confident ───────────────────────── */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
   color: var(--text);
-  line-height: 1.1;
+  line-height: 1.05;
 }
 
+/* Hero title — Tixly style: very tight, very bold, very clean */
 h1 {
-  font-size: var(--text-h1);
   font-weight: 800;
-  letter-spacing: -1.5px;
+  letter-spacing: -2.5px;
+  line-height: 1.0;
 }
 
 h2 {
-  font-size: var(--text-h2);
   font-weight: 700;
-  letter-spacing: -0.5px;
+  letter-spacing: -1px;
+  line-height: 1.1;
 }
 
 h3 {
-  font-size: var(--text-h3);
   font-weight: 600;
-  letter-spacing: 0px;
+  letter-spacing: -0.3px;
+  line-height: 1.2;
 }
 
-/* ─── Reading Progress Bar ───────────────────────────────────────────── */
+/* ─── Reading Progress ───────────────────────────────────────────────── */
 #reading-progress {
   position: fixed;
   top: 64px;
@@ -107,17 +98,17 @@ code:not(pre code) {
   color: var(--accent);
 }
 
-/* ─── Article Long-form Typography ──────────────────────────────────── */
+/* ─── Article Body ───────────────────────────────────────────────────── */
 .article-body {
   font-family: var(--font-body);
-  font-size: var(--text-body);   /* 1.1rem */
+  font-size: 1.1rem;
   line-height: 1.9;
   color: var(--text2);
 }
 
 .article-body h2 {
   font-family: var(--font-display);
-  font-size: var(--text-h2);
+  font-size: 1.7rem;
   font-weight: 700;
   letter-spacing: -0.5px;
   color: var(--text);
@@ -126,16 +117,17 @@ code:not(pre code) {
 
 .article-body h3 {
   font-family: var(--font-display);
-  font-size: var(--text-h3);
+  font-size: 1.25rem;
   font-weight: 600;
   color: var(--text);
   margin: 2rem 0 0.75rem;
 }
 
-.article-body p { margin-bottom: 1.5rem; }
+.article-body p         { margin-bottom: 1.5rem; }
 .article-body ul,
-.article-body ol { padding-left: 1.5rem; margin-bottom: 1.5rem; }
-.article-body li { margin-bottom: 0.5rem; }
+.article-body ol        { padding-left: 1.5rem; margin-bottom: 1.5rem; }
+.article-body li        { margin-bottom: 0.5rem; }
+.article-body strong    { color: var(--text); font-weight: 600; }
 
 .article-body blockquote {
   border-left: 3px solid var(--accent);
@@ -144,65 +136,41 @@ code:not(pre code) {
   background: rgba(0,212,255,0.04);
   border-radius: 0 12px 12px 0;
   font-style: italic;
-  color: var(--text2);
-}
-
-.article-body strong { color: var(--text); font-weight: 600; }
-
-/* ─── UI Labels (Inter 500) ──────────────────────────────────────────── */
-.label {
-  font-family: var(--font-body);
-  font-size: var(--text-label);
-  font-weight: 500;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--text3);
 }
 
 /* ─── Scrollbar ──────────────────────────────────────────────────────── */
-::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar       { width: 5px; }
 ::-webkit-scrollbar-track { background: var(--bg2); }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text3); }
 
-/* ─── Hero Grid Background ───────────────────────────────────────────── */
+/* ─── Hero Grid ──────────────────────────────────────────────────────── */
 .hero-grid {
   background-image:
-    linear-gradient(rgba(0,212,255,0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,212,255,0.035) 1px, transparent 1px);
-  background-size: 64px 64px;
+    linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
 }
 
-/* ─── BofA Badge Pulse ───────────────────────────────────────────────── */
+/* ─── BofA Badge ─────────────────────────────────────────────────────── */
 .boa-badge {
-  background: linear-gradient(135deg, rgba(0,212,255,0.08), rgba(167,139,250,0.08));
-  border: 1px solid rgba(0,212,255,0.2);
+  background: linear-gradient(135deg, rgba(227,24,55,0.08), rgba(167,139,250,0.06));
+  border: 1px solid rgba(0,212,255,0.18);
   animation: badgePulse 4s ease-in-out infinite;
 }
 
 @keyframes badgePulse {
-  0%,100% { border-color: rgba(0,212,255,0.2); }
-  50%      { border-color: rgba(0,212,255,0.45); }
+  0%,100% { border-color: rgba(0,212,255,0.18); }
+  50%      { border-color: rgba(0,212,255,0.38); }
 }
 
-/* ─── Utility Classes ────────────────────────────────────────────────── */
+/* ─── Utilities ──────────────────────────────────────────────────────── */
 @layer utilities {
   .text-gradient {
     background: linear-gradient(135deg, #00d4ff 0%, #a78bfa 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-  }
-  .text-gradient-gold {
-    background: linear-gradient(135deg, #ffd700 0%, #ff8c42 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  .glass-card {
-    background: rgba(13,30,46,0.8);
-    backdrop-filter: blur(12px);
-    border: 1px solid #1a3048;
   }
   .font-display { font-family: var(--font-display); }
   .font-body    { font-family: var(--font-body); }
