@@ -3,13 +3,13 @@ const nextConfig = {
   reactStrictMode: true,
   output: 'standalone',
   typescript: {
-  ignoreBuildErrors: true,
-},
-eslint: {
-  ignoreDuringBuilds: true,
-},
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   images: {
-    domains: ['images.unsplash.com'],
+    domains: ['images.unsplash.com', 'genai-lab-api.onrender.com'],
   },
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
