@@ -15,34 +15,24 @@ export default function NewsletterForm() {
     setError('')
     setLoading(true)
 
-    // Strip trailing slash, default to backend URL
-    const API = (process.env.NEXT_PUBLIC_API_URL || 'https://genai-lab.onrender.com').replace(/\/$/, '')
-    const url = `${API}/api/newsletter/subscribe`
-
     try {
-      const res = await fetch(url, {
+      // Call our own Next.js API route — no CORS issues!
+      const res = await fetch('/api/subscribe', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim().toLowerCase() }),
       })
 
-      if (res.ok) {
+      const data = await res.json()
+
+      if (res.ok || data.status === 'already_subscribed') {
         setSubmitted(true)
         setEmail('')
       } else {
-        const data = await res.json().catch(() => ({}))
-        if (data.detail === 'already_subscribed' || data.status === 'already_subscribed') {
-          setSubmitted(true) // treat as success
-        } else {
-          setError(data.detail || 'Subscription failed. Please try again.')
-        }
+        setError(data.detail || 'Subscription failed. Please try again.')
       }
-    } catch (err: any) {
-      console.error('Newsletter error:', err)
-      setError('Could not reach server. Please try again in a moment.')
+    } catch (err) {
+      setError('Something went wrong. Please try again.')
     } finally {
       setLoading(false)
     }
