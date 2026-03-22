@@ -11,19 +11,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(422).json({ detail: 'Email is required' })
   }
 
-  const API = (process.env.NEXT_PUBLIC_API_URL || 'https://genai-lab-api.onrender.com').replace(/\/$/, '')
+  // Hardcoded backend URL — no env var needed
+  const url = 'https://genai-lab-api.onrender.com/api/newsletter/subscribe'
 
   try {
-    const response = await fetch(`${API}/api/newsletter/subscribe`, {
+    console.log('Calling backend:', url, 'with email:', email)
+    
+    const response = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
+      headers: { 
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({ email: email.trim().toLowerCase() }),
     })
 
+    console.log('Backend response status:', response.status)
     const data = await response.json()
+    console.log('Backend response data:', data)
+    
     return res.status(response.status).json(data)
-  } catch (err) {
-    console.error('Proxy error:', err)
-    return res.status(500).json({ detail: 'Failed to reach backend' })
+  } catch (err: any) {
+    console.error('Proxy fetch error:', err.message)
+    // Return the actual error for debugging
+    return res.status(500).json({ 
+      detail: 'Proxy error: ' + err.message,
+      url: url 
+    })
   }
 }
