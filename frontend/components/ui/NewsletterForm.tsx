@@ -14,21 +14,38 @@ export default function NewsletterForm() {
     }
     setError('')
     setLoading(true)
-    try {
-      const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-      const res = await fetch(`${API}/api/newsletter/subscribe`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.detail || 'Failed')
-      setSubmitted(true)
-      setEmail('')
-    } catch (e: any) {
-      setError(e.message || 'Something went wrong. Please try again.')
-    } finally {
-      setLoading(false)
+
+    const API = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000').replace(/\/$/, '')
+    const url = `${API}/api/newsletter/subscribe`
+
+    // Retry up to 3 times — handles Render cold start
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email.trim().toLowerCase() }),
+        })
+        const data = await res.json()
+        if (!res.ok) throw new Error(data.detail || 'Subscription failed')
+        setSubmitted(true)
+        setEmail('')
+        setLoading(false)
+        return
+      } catch (err: any) {
+        if (attempt === 3) {
+          // All retries failed
+          if (err.message === 'Failed to fetch') {
+            setError('Server is waking up — please try again in 30 seconds')
+          } else {
+            setError(err.message || 'Something went wrong. Please try again.')
+          }
+          setLoading(false)
+          return
+        }
+        // Wait 2 seconds before retrying
+        await new Promise((r) => setTimeout(r, 2000))
+      }
     }
   }
 
@@ -40,8 +57,10 @@ export default function NewsletterForm() {
         className="text-center py-4"
       >
         <div className="text-3xl mb-3">🎉</div>
-        <p className="font-semibold text-white text-lg">You are in!</p>
-        <p className="text-sm mt-1" style={{ color: '#8ab4d4' }}>
+        <p style={{ fontWeight: 600, color: '#e8f4ff', fontSize: '16px', fontFamily: 'Montserrat, sans-serif' }}>
+          You are in!
+        </p>
+        <p style={{ fontSize: '13px', color: '#8ab4d4', marginTop: '6px', fontFamily: 'Montserrat, sans-serif' }}>
           You will be notified when new articles drop from the lab.
         </p>
       </motion.div>
@@ -62,7 +81,7 @@ export default function NewsletterForm() {
             background: '#080f17',
             border: `1px solid ${error ? '#ff4d6d' : '#1a3048'}`,
             color: '#e8f4ff',
-            fontFamily: 'Inter, sans-serif',
+            fontFamily: 'Montserrat, sans-serif',
           }}
         />
         <motion.button
@@ -70,10 +89,11 @@ export default function NewsletterForm() {
           disabled={loading}
           className="px-6 py-3 rounded-xl font-bold text-sm text-black border-none cursor-pointer whitespace-nowrap"
           style={{
-            background: 'linear-gradient(135deg, #00d4ff, #0088cc)',
-            fontFamily: 'Inter, sans-serif',
-            opacity: loading ? 0.7 : 1,
+            background: loading ? '#0088cc' : 'linear-gradient(135deg, #00d4ff, #0088cc)',
+            fontFamily: 'Montserrat, sans-serif',
+            fontWeight: 700,
             minWidth: '120px',
+            opacity: loading ? 0.8 : 1,
           }}
           whileHover={{ y: loading ? 0 : -1 }}
           whileTap={{ scale: 0.98 }}
@@ -82,7 +102,7 @@ export default function NewsletterForm() {
         </motion.button>
       </div>
       {error && (
-        <p className="text-xs text-center mt-3" style={{ color: '#ff4d6d' }}>
+        <p style={{ fontSize: '12px', color: '#ff4d6d', textAlign: 'center', marginTop: '12px', fontFamily: 'Montserrat, sans-serif' }}>
           {error}
         </p>
       )}
