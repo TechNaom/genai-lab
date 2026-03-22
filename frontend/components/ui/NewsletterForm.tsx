@@ -15,37 +15,36 @@ export default function NewsletterForm() {
     setError('')
     setLoading(true)
 
-    const API = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000').replace(/\/$/, '')
+    // Strip trailing slash, default to backend URL
+    const API = (process.env.NEXT_PUBLIC_API_URL || 'https://genai-lab-api.onrender.com').replace(/\/$/, '')
     const url = `${API}/api/newsletter/subscribe`
 
-    // Retry up to 3 times — handles Render cold start
-    for (let attempt = 1; attempt <= 3; attempt++) {
-      try {
-        const res = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: email.trim().toLowerCase() }),
-        })
-        const data = await res.json()
-        if (!res.ok) throw new Error(data.detail || 'Subscription failed')
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({ email: email.trim().toLowerCase() }),
+      })
+
+      if (res.ok) {
         setSubmitted(true)
         setEmail('')
-        setLoading(false)
-        return
-      } catch (err: any) {
-        if (attempt === 3) {
-          // All retries failed
-          if (err.message === 'Failed to fetch') {
-            setError('Server is waking up — please try again in 30 seconds')
-          } else {
-            setError(err.message || 'Something went wrong. Please try again.')
-          }
-          setLoading(false)
-          return
+      } else {
+        const data = await res.json().catch(() => ({}))
+        if (data.detail === 'already_subscribed' || data.status === 'already_subscribed') {
+          setSubmitted(true) // treat as success
+        } else {
+          setError(data.detail || 'Subscription failed. Please try again.')
         }
-        // Wait 2 seconds before retrying
-        await new Promise((r) => setTimeout(r, 2000))
       }
+    } catch (err: any) {
+      console.error('Newsletter error:', err)
+      setError('Could not reach server. Please try again in a moment.')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -89,7 +88,7 @@ export default function NewsletterForm() {
           disabled={loading}
           className="px-6 py-3 rounded-xl font-bold text-sm text-black border-none cursor-pointer whitespace-nowrap"
           style={{
-            background: loading ? '#0088cc' : 'linear-gradient(135deg, #00d4ff, #0088cc)',
+            background: 'linear-gradient(135deg, #00d4ff, #0088cc)',
             fontFamily: 'Montserrat, sans-serif',
             fontWeight: 700,
             minWidth: '120px',
