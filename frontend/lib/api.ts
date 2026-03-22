@@ -1,4 +1,5 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+// All API calls go through Next.js proxy routes — no CORS issues
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://genai-lab-api.onrender.com'
 
 export interface Post {
   title: string
@@ -14,8 +15,25 @@ export interface Post {
   content?: string
 }
 
-async function apiFetch(path: string, options: RequestInit = {}) {
+// Direct backend fetch — used server-side (getStaticProps etc.)
+async function backendFetch(path: string, options: RequestInit = {}) {
   const res = await fetch(`${API_URL}${path}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+    ...options,
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }))
+    throw new Error(err.detail || 'API error')
+  }
+  return res.json()
+}
+
+// Client-side fetch — goes through Next.js proxy (no CORS)
+async function proxyFetch(path: string, options: RequestInit = {}) {
+  const res = await fetch(path, {
     headers: {
       'Content-Type': 'application/json',
       ...options.headers,
@@ -33,46 +51,45 @@ function authHeaders(token: string) {
   return { 'x-admin-token': token }
 }
 
-// ── Public ──────────────────────────────────────────────────────────────────
-
 export const api = {
-  async getPosts(params?: {
-    tag?: string
-    category?: string
-    q?: string
-    page?: number
-    limit?: number
-  }): Promise<Post[]> {
-    const qs = new URLSearchParams()
-    if (params?.tag) qs.set('tag', params.tag)
-    if (params?.category) qs.set('category', params.category)
-    if (params?.q) qs.set('q', params.q)
-    if (params?.page) qs.set('page', String(params.page))
-    if (params?.limit) qs.set('limit', String(params.limit))
-    return apiFetch(`/api/posts/?${qs.toString()}`)
+  // ── Public endpoints (server-side, direct) ──
+  async getPosts(params: { limit?: number; tag?: string; category?: string; q?: string } = {}): Promise<Post[]> {
+    const q = new URLSearchParams()
+    if (params.limit) q.set('limit', String(params.limit))
+    if (params.tag) q.set('tag', params.tag)
+    if (params.category) q.set('category', params.category)
+    if (params.q) q.set('q', params.q)
+    const qs = q.toString()
+    return backendFetch(`/api/posts/${qs ? '?' + qs : ''}`)
   },
 
   async getPost(slug: string): Promise<Post> {
-    return apiFetch(`/api/posts/${slug}`)
+    return backendFetch(`/api/posts/${slug}`)
   },
 
-  // ── Admin ────────────────────────────────────────────────────────────────
+  async getTags(): Promise<string[]> {
+    const posts: Post[] = await backendFetch('/api/posts/')
+    const tags = new Set<string>()
+    posts.forEach((p) => (p.tags || []).forEach((t) => tags.add(t)))
+    return Array.from(tags)
+  },
 
+  // ── Admin endpoints (client-side, via proxy) ──
   async login(username: string, password: string) {
-    return apiFetch('/api/auth/login', {
+    return proxyFetch('/api/auth-proxy', {
       method: 'POST',
       body: JSON.stringify({ username, password }),
     })
   },
 
   async getAllPosts(token: string): Promise<Post[]> {
-    return apiFetch('/api/posts/admin/all', {
+    return proxyFetch('/api/posts-proxy?status=all', {
       headers: authHeaders(token),
     })
   },
 
   async createPost(token: string, post: Partial<Post> & { content?: string }) {
-    return apiFetch('/api/posts/', {
+    return proxyFetch('/api/posts-proxy', {
       method: 'POST',
       headers: authHeaders(token),
       body: JSON.stringify(post),
@@ -80,7 +97,7 @@ export const api = {
   },
 
   async updatePost(token: string, slug: string, post: Partial<Post> & { content?: string }) {
-    return apiFetch(`/api/posts/${slug}`, {
+    return proxyFetch(`/api/posts-proxy?slug=${slug}`, {
       method: 'PUT',
       headers: authHeaders(token),
       body: JSON.stringify(post),
@@ -88,7 +105,7 @@ export const api = {
   },
 
   async deletePost(token: string, slug: string) {
-    const res = await fetch(`${API_URL}/api/posts/${slug}`, {
+    const res = await fetch(`/api/posts-proxy?slug=${slug}`, {
       method: 'DELETE',
       headers: { 'x-admin-token': token },
     })
