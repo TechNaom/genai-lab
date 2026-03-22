@@ -69,7 +69,7 @@ export default function Layout({ children, showProgress }: LayoutProps) {
             >
               MP
             </div>
-            <span style={{ fontFamily: D, fontWeight: 700, fontSize: '15px', letterSpacing: '-0.3px', color: '#e8f4ff' }}>
+            <span style={{ fontFamily: D, fontWeight: 600, fontSize: '13px', letterSpacing: '0px', color: '#e8f4ff' }}>
               Manohar's{' '}
               <span style={{ color: '#00d4ff' }}>GenAI</span>
               {' '}Lab
