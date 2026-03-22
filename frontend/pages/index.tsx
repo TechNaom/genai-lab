@@ -30,8 +30,8 @@ const ACHIEVEMENTS = [
   { metric: '167+', label: 'Prompt scenarios validated in production' },
 ]
 
-const D = 'Plus Jakarta Sans, sans-serif'  // display font shorthand
-const B = 'Inter, sans-serif'              // body font shorthand
+const D = 'Montserrat, sans-serif'  // display font shorthand
+const B = 'Montserrat, sans-serif'              // body font shorthand
 
 interface Props { posts: Post[] }
 
@@ -93,21 +93,13 @@ export default function Home({ posts }: Props) {
             <div style={{ fontSize: '11px', color: '#00d4ff', fontWeight: 600, fontFamily: B }}>AI Ignition Educator</div>
           </motion.div>
 
-          {/*
-            THE TITLE — Tixly approach:
-            - Font weight 800 but NOT ultra-black
-            - Very tight letter-spacing (-3px)
-            - "Manohar's" = plain white, weight 700 (lighter)
-            - "GenAI" = gradient, weight 800 (the ONE accent)
-            - "Lab" = plain white, weight 800
-            Result: clean hierarchy, one moment of colour
-          */}
           <motion.h1
             style={{
-              fontFamily: D,
-              lineHeight: 1.0,
-              letterSpacing: '-3px',
+              fontFamily: 'Montserrat, sans-serif',
+              lineHeight: 0.95,
+              letterSpacing: '-1px',
               marginBottom: '2rem',
+              textTransform: 'uppercase',
             }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -115,13 +107,13 @@ export default function Home({ posts }: Props) {
           >
             <span
               className="block"
-              style={{ fontSize: 'clamp(2.8rem, 6.5vw, 5rem)', fontWeight: 600, color: '#e8f4ff' }}
+              style={{ fontSize: 'clamp(2.5rem, 6vw, 4.8rem)', fontWeight: 900, color: '#e8f4ff' }}
             >
               Manohar's
             </span>
             <span
               className="block"
-              style={{ fontSize: 'clamp(3rem, 7vw, 5.5rem)', fontWeight: 800, letterSpacing: '-2.5px', lineHeight: 1.0 }}
+              style={{ fontSize: 'clamp(2.8rem, 7vw, 5.8rem)', fontWeight: 900, lineHeight: 0.95 }}
             >
               <span className="text-gradient">GenAI</span>
               <span style={{ color: '#e8f4ff' }}> Lab</span>
