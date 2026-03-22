@@ -16,7 +16,7 @@ export default function NewsletterForm() {
     setLoading(true)
 
     // Strip trailing slash, default to backend URL
-    const API = (process.env.NEXT_PUBLIC_API_URL || 'https://genai-lab-api.onrender.com').replace(/\/$/, '')
+    const API = (process.env.NEXT_PUBLIC_API_URL || 'https://genai-lab.onrender.com').replace(/\/$/, '')
     const url = `${API}/api/newsletter/subscribe`
 
     try {
