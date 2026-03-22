@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
-const BACKEND = (process.env.NEXT_PUBLIC_API_URL || 'https://genai-lab-api.onrender.com').replace(/\/$/, '')
+// Use hardcoded URL as fallback — NEXT_PUBLIC_ vars don't work server-side in all cases
+const BACKEND = 'https://genai-lab-api.onrender.com'
 
 export const config = {
   api: {
@@ -11,32 +12,25 @@ export const config = {
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { slug, ...restQuery } = req.query
+  const { slug, status } = req.query
 
   // Build backend URL
   let backendPath = '/api/posts/'
-  if (slug) backendPath += `${slug}`
 
-  // Handle admin/all route
-  if (restQuery.status === 'all') {
+  if (status === 'all') {
+    // Admin listing — all posts including drafts
     backendPath = '/api/posts/admin/all'
-  } else {
-    // Pass other query params
-    const qp = new URLSearchParams()
-    Object.entries(restQuery).forEach(([k, v]) => {
-      if (v && k !== 'status') qp.set(k, String(v))
-    })
-    if (restQuery.status) qp.set('status', String(restQuery.status))
-    const qs = qp.toString()
-    if (qs && !slug) backendPath += `?${qs}`
+  } else if (slug) {
+    // Single post by slug
+    backendPath = `/api/posts/${slug}`
   }
 
   const url = `${BACKEND}${backendPath}`
 
+  // Forward admin token
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   }
-
   if (req.headers['x-admin-token']) {
     headers['x-admin-token'] = req.headers['x-admin-token'] as string
   }
@@ -51,12 +45,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     })
 
     const text = await backendRes.text()
-    let data
-    try { data = JSON.parse(text) } catch { data = { detail: text } }
+    let data: any
+    try {
+      data = JSON.parse(text)
+    } catch {
+      data = { detail: text }
+    }
+
+    // Log for debugging
+    console.log(`[posts-proxy] ${req.method} ${url} → ${backendRes.status}`, 
+      backendRes.status >= 400 ? data : 'OK')
 
     res.status(backendRes.status).json(data)
   } catch (err: any) {
-    console.error('Posts proxy error:', err)
-    res.status(500).json({ detail: 'Proxy error: ' + err.message })
+    console.error('[posts-proxy] fetch error:', err.message)
+    res.status(500).json({ detail: `Proxy error: ${err.message}`, url })
   }
 }
