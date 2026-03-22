@@ -96,7 +96,7 @@ export default function Home({ posts }: Props) {
           <motion.h1
             style={{
               fontFamily: 'Montserrat, sans-serif',
-              fontWeight: 900,
+              fontWeight: 700,
               fontSize: 'clamp(3.2rem, 7.5vw, 6.5rem)',
               lineHeight: 0.95,
               letterSpacing: '-1px',
