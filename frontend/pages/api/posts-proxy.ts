@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
-// Use hardcoded URL as fallback — NEXT_PUBLIC_ vars don't work server-side in all cases
 const BACKEND = 'https://genai-lab-api.onrender.com'
 
 export const config = {
@@ -14,20 +13,15 @@ export const config = {
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { slug, status } = req.query
 
-  // Build backend URL
   let backendPath = '/api/posts/'
-
   if (status === 'all') {
-    // Admin listing — all posts including drafts
     backendPath = '/api/posts/admin/all'
   } else if (slug) {
-    // Single post by slug
     backendPath = `/api/posts/${slug}`
   }
 
   const url = `${BACKEND}${backendPath}`
 
-  // Forward admin token
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   }
@@ -52,9 +46,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       data = { detail: text }
     }
 
-    // Log for debugging
-    console.log(`[posts-proxy] ${req.method} ${url} → ${backendRes.status}`, 
-      backendRes.status >= 400 ? data : 'OK')
+    // Log FULL response for debugging
+    console.log(`[posts-proxy] ${req.method} ${url} → ${backendRes.status}`)
+    if (backendRes.status >= 400) {
+      console.log('[posts-proxy] ERROR BODY:', JSON.stringify(data))
+      console.log('[posts-proxy] REQUEST BODY:', JSON.stringify(req.body))
+    }
 
     res.status(backendRes.status).json(data)
   } catch (err: any) {
