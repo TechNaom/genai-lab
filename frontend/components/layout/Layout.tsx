@@ -21,8 +21,8 @@ function ReadingProgress() {
   return <div id="reading-progress" style={{ width: `${progress}%` }} />
 }
 
-const D = 'Plus Jakarta Sans, sans-serif'
-const B = 'Inter, sans-serif'
+const D = 'Montserrat, sans-serif'
+const B = 'Montserrat, sans-serif'
 
 export default function Layout({ children, showProgress }: LayoutProps) {
   const router = useRouter()
