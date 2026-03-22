@@ -109,8 +109,7 @@ export default function Home({ posts }: Props) {
             transition={{ delay: 0.3 }}
           >
             <span className="block">Manohar's</span>
-            <span className="block" style={{ color: '#00d4ff' }}>GenAI</span>
-            <span className="block">Lab.</span>
+            <span className="block" style={{ color: '#00d4ff' }}>GenAI Lab.</span>
           </motion.h1>
 
           {/* Description — plain white Montserrat, like the reference */}
