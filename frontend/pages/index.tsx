@@ -15,46 +15,23 @@ const CATEGORIES = [
   { name: 'Experiments', emoji: '🔬', color: '#ffd700' },
 ]
 
-// Five roles — the complete Manohar
 const ROLES = [
-  {
-    icon: '🐍',
-    title: 'AI Engineer',
-    desc: 'Python · Agentic Pipelines · RAG · DevOps · LLM Tools built for production',
-    color: '#00d4ff',
-  },
-  {
-    icon: '✍️',
-    title: 'Prompt Engineering Consultant',
-    desc: 'Advising BofA teams on building their own AI automations from scratch',
-    color: '#a78bfa',
-  },
-  {
-    icon: '🔬',
-    title: 'GenAI R&D Leader',
-    desc: 'Researching mini-LLMs, embeddings, agentic systems, and what comes next',
-    color: '#00ff9d',
-  },
-  {
-    icon: '📝',
-    title: 'Technical Writer',
-    desc: 'Documenting real AI systems on this blog and LinkedIn — no theory, only practice',
-    color: '#ff8c42',
-  },
-  {
-    icon: '🎓',
-    title: 'GenAI Educator',
-    desc: 'AI Ignition program — teaching engineers inside one of the world\'s largest banks',
-    color: '#ffd700',
-  },
+  { icon: '🐍', title: 'AI Engineer', desc: 'Python · Agentic Pipelines · RAG · DevOps · LLM Tools built for production', color: '#00d4ff' },
+  { icon: '✍️', title: 'Prompt Engineering Consultant', desc: 'Advising BofA teams on building their own AI automations from scratch', color: '#a78bfa' },
+  { icon: '🔬', title: 'GenAI R&D Leader', desc: 'Researching mini-LLMs, embeddings, agentic systems, and what comes next', color: '#00ff9d' },
+  { icon: '📝', title: 'Technical Writer', desc: 'Documenting real AI systems on this blog and LinkedIn — no theory, only practice', color: '#ff8c42' },
+  { icon: '🎓', title: 'GenAI Educator', desc: "AI Ignition program — teaching engineers inside one of the world's largest banks", color: '#ffd700' },
 ]
 
 const ACHIEVEMENTS = [
-  { icon: '⚡', metric: '4×', label: 'Throughput gain on enterprise AI pipelines' },
-  { icon: '🎯', metric: '75%', label: 'Manual effort eliminated via AI automation' },
-  { icon: '🏦', metric: '20K+', label: 'Enterprise workflows powered by AI' },
-  { icon: '🧪', metric: '167+', label: 'Prompt scenarios validated in production' },
+  { metric: '4×', label: 'Throughput gain on enterprise AI pipelines' },
+  { metric: '75%', label: 'Manual effort eliminated via automation' },
+  { metric: '20K+', label: 'Enterprise workflows powered by AI' },
+  { metric: '167+', label: 'Prompt scenarios validated in production' },
 ]
+
+const D = 'Plus Jakarta Sans, sans-serif'  // display font shorthand
+const B = 'Inter, sans-serif'              // body font shorthand
 
 interface Props { posts: Post[] }
 
@@ -66,10 +43,10 @@ export default function Home({ posts }: Props) {
     <Layout>
       <Head>
         <title>Manohar's GenAI Lab — AI Engineer · Consultant · Educator @ Bank of America</title>
-        <meta name="description" content="AVP & AI Transformation Architect at Bank of America. I build AI systems, consult teams on prompt engineering, lead GenAI R&D, write about it, and teach it. Real systems. No fluff." />
+        <meta name="description" content="AVP & AI Transformation Architect at Bank of America. I build AI systems, consult teams on prompt engineering, lead GenAI R&D, write about it, and teach it." />
       </Head>
 
-      {/* ── Hero ── */}
+      {/* ── HERO — Original centered layout, Tixly font feel ── */}
       <section
         className="relative overflow-hidden flex items-center justify-center text-center px-6"
         style={{ minHeight: '96vh' }}
@@ -90,68 +67,81 @@ export default function Home({ posts }: Props) {
             style={{ background: 'rgba(0,212,255,0.06)', border: '1px solid rgba(0,212,255,0.2)', color: '#00d4ff' }}
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
+            transition={{ delay: 0.15 }}
           >
             <span className="inline-block w-2 h-2 rounded-full animate-pulse" style={{ background: '#00ff9d' }} />
-            <span style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', fontFamily: 'Inter, sans-serif' }}>
+            <span style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', fontFamily: B }}>
               Live · Enterprise GenAI R&D
             </span>
           </motion.div>
 
           {/* BofA badge */}
           <motion.div
-            className="boa-badge inline-flex items-center gap-3 rounded-2xl px-6 py-3 mb-8"
-            style={{ width: 'fit-content', margin: '0 auto 2rem' }}
+            className="boa-badge inline-flex items-center gap-3 rounded-2xl px-6 py-3 mb-10"
+            style={{ width: 'fit-content', margin: '0 auto 2.5rem' }}
             initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
+          >
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-white text-xs"
+              style={{ background: 'linear-gradient(135deg, #e31837, #c41230)' }}>B</div>
+            <div style={{ textAlign: 'left' }}>
+              <div style={{ fontSize: '13px', fontWeight: 700, color: '#e8f4ff', fontFamily: D }}>AVP · Bank of America</div>
+              <div style={{ fontSize: '11px', color: '#8ab4d4', fontFamily: B }}>AI Transformation Architect · Top 5% Performer</div>
+            </div>
+            <div style={{ width: '1px', height: '32px', background: 'rgba(0,212,255,0.2)', margin: '0 4px' }} />
+            <div style={{ fontSize: '11px', color: '#00d4ff', fontWeight: 600, fontFamily: B }}>AI Ignition Educator</div>
+          </motion.div>
+
+          {/*
+            THE TITLE — Tixly approach:
+            - Font weight 800 but NOT ultra-black
+            - Very tight letter-spacing (-3px)
+            - "Manohar's" = plain white, weight 700 (lighter)
+            - "GenAI" = gradient, weight 800 (the ONE accent)
+            - "Lab" = plain white, weight 800
+            Result: clean hierarchy, one moment of colour
+          */}
+          <motion.h1
+            style={{
+              fontFamily: D,
+              lineHeight: 1.0,
+              letterSpacing: '-3px',
+              marginBottom: '2rem',
+            }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-white text-xs"
-              style={{ background: 'linear-gradient(135deg, #e31837, #c41230)' }}
-            >B</div>
-            <div style={{ textAlign: 'left' }}>
-              <div style={{ fontSize: '13px', fontWeight: 700, color: '#e8f4ff', fontFamily: 'Inter, sans-serif' }}>
-                AVP · Bank of America
-              </div>
-              <div style={{ fontSize: '11px', color: '#8ab4d4', fontFamily: 'Inter, sans-serif' }}>
-                AI Transformation Architect · Top 5% Performer
-              </div>
-            </div>
-            <div style={{ width: '1px', height: '32px', background: 'rgba(0,212,255,0.2)', margin: '0 4px' }} />
-            <div style={{ fontSize: '11px', color: '#00d4ff', fontWeight: 600, fontFamily: 'Inter, sans-serif' }}>
-              AI Ignition Educator
-            </div>
-          </motion.div>
+            <span
+              className="block"
+              style={{ fontSize: 'clamp(3rem, 8vw, 5.8rem)', fontWeight: 700, color: '#e8f4ff' }}
+            >
+              Manohar's
+            </span>
+            <span
+              className="block"
+              style={{ fontSize: 'clamp(3.5rem, 9.5vw, 7rem)', fontWeight: 800, letterSpacing: '-4px', lineHeight: 1.0 }}
+            >
+              <span className="text-gradient">GenAI</span>
+              <span style={{ color: '#e8f4ff' }}> Lab</span>
+            </span>
+          </motion.h1>
 
-          {/* Title */}
-          <h1
-            className="leading-none mb-8"
-            style={{
-              fontSize: 'clamp(3rem, 8.5vw, 6rem)',
-              fontFamily: 'Bricolage Grotesque, sans-serif',
-              fontWeight: 700,
-              letterSpacing: '-3px',
-            }}
-          >
-            <span className="block text-white">Manohar's</span>
-            <span className="block text-gradient" style={{ fontWeight: 800 }}>GenAI Lab</span>
-          </h1>
-
-          {/* THE description — all 5 roles in 2 lines */}
+          {/* Description — sharp, complete, Inter */}
           <motion.p
-            className="mx-auto mb-4"
+            className="mx-auto mb-3"
             style={{
-              fontSize: 'clamp(1rem, 2.2vw, 1.2rem)',
+              fontFamily: B,
+              fontSize: 'clamp(1rem, 2vw, 1.15rem)',
               color: '#e8f4ff',
-              maxWidth: '820px',
-              lineHeight: 1.8,
+              maxWidth: '760px',
+              lineHeight: 1.75,
               fontWeight: 500,
-              fontFamily: 'Inter, sans-serif',
             }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
+            transition={{ delay: 0.45 }}
           >
             I build AI systems, consult BofA teams on{' '}
             <span style={{ color: '#a78bfa', fontWeight: 700 }}>prompt engineering</span>{' '}
@@ -162,24 +152,19 @@ export default function Home({ posts }: Props) {
           </motion.p>
 
           <motion.p
-            className="mx-auto mb-8"
+            className="mx-auto mb-10"
             style={{
-              fontSize: 'clamp(0.9rem, 1.8vw, 1.05rem)',
+              fontFamily: B,
+              fontSize: 'clamp(0.875rem, 1.6vw, 1rem)',
               color: '#8ab4d4',
-              maxWidth: '700px',
+              maxWidth: '620px',
               lineHeight: 1.85,
-              fontFamily: 'Inter, sans-serif',
             }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
+            transition={{ delay: 0.52 }}
           >
-            This lab is where I document the real work —{' '}
-            <span style={{ color: '#00d4ff' }}>Python</span> ·{' '}
-            <span style={{ color: '#a78bfa' }}>Agentic pipelines</span> ·{' '}
-            <span style={{ color: '#00ff9d' }}>RAG systems</span> ·{' '}
-            <span style={{ color: '#ff8c42' }}>LLM frameworks</span> ·{' '}
-            <span style={{ color: '#ffd700' }}>DevOps for AI</span>.{' '}
+            Python · Agentic pipelines · RAG systems · LLM frameworks · DevOps for AI.{' '}
             <span style={{ color: '#a78bfa', fontWeight: 600 }}>Battle-tested. No fluff.</span>
           </motion.p>
 
@@ -188,24 +173,43 @@ export default function Home({ posts }: Props) {
             className="flex gap-4 justify-center flex-wrap mb-16"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
+            transition={{ delay: 0.6 }}
           >
             <Link href="/blog">
               <motion.button
-                className="px-8 py-4 rounded-xl font-bold text-black cursor-pointer border-none"
-                style={{ background: 'linear-gradient(135deg, #00d4ff, #0088cc)', fontFamily: 'Inter, sans-serif', fontSize: '15px' }}
+                style={{
+                  background: 'linear-gradient(135deg, #00d4ff, #0088cc)',
+                  color: '#000',
+                  padding: '14px 32px',
+                  borderRadius: '12px',
+                  border: 'none',
+                  fontFamily: D,
+                  fontWeight: 700,
+                  fontSize: '15px',
+                  letterSpacing: '-0.3px',
+                  cursor: 'pointer',
+                }}
                 whileHover={{ y: -2, boxShadow: '0 8px 32px rgba(0,212,255,0.35)' }}
-                whileTap={{ scale: 0.98 }}
+                whileTap={{ scale: 0.97 }}
               >
                 Explore the Lab →
               </motion.button>
             </Link>
             <Link href="/projects">
               <motion.button
-                className="px-8 py-4 rounded-xl font-semibold cursor-pointer"
-                style={{ background: 'transparent', border: '1px solid #1f3a58', color: '#e8f4ff', fontFamily: 'Inter, sans-serif', fontSize: '15px' }}
+                style={{
+                  background: 'transparent',
+                  color: '#e8f4ff',
+                  padding: '14px 32px',
+                  borderRadius: '12px',
+                  border: '1px solid #1f3a58',
+                  fontFamily: D,
+                  fontWeight: 600,
+                  fontSize: '15px',
+                  cursor: 'pointer',
+                }}
                 whileHover={{ background: '#0d1e2e', borderColor: '#00d4ff' }}
-                whileTap={{ scale: 0.98 }}
+                whileTap={{ scale: 0.97 }}
               >
                 View Projects
               </motion.button>
@@ -216,32 +220,28 @@ export default function Home({ posts }: Props) {
           <motion.div
             className="grid gap-4 mx-auto"
             style={{
-              gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
               maxWidth: '780px',
               paddingTop: '2rem',
               borderTop: '1px solid rgba(26,48,72,0.8)',
             }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.9 }}
+            transition={{ delay: 0.75 }}
           >
             {ACHIEVEMENTS.map((a, i) => (
               <motion.div
-                key={a.label}
+                key={a.metric}
                 className="text-center rounded-xl p-4"
                 style={{ background: 'rgba(13,30,46,0.6)', border: '1px solid #1a3048' }}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.9 + i * 0.1 }}
+                transition={{ delay: 0.75 + i * 0.1 }}
               >
-                <div style={{ fontSize: '1.1rem', marginBottom: '4px' }}>{a.icon}</div>
-                <div
-                  className="font-black"
-                  style={{ fontSize: '1.9rem', letterSpacing: '-1px', fontFamily: 'Bricolage Grotesque, sans-serif', color: '#00d4ff' }}
-                >
+                <div style={{ fontFamily: D, fontWeight: 800, fontSize: '2rem', letterSpacing: '-1.5px', color: '#00d4ff', lineHeight: 1 }}>
                   {a.metric}
                 </div>
-                <div style={{ fontSize: '11px', color: '#4a7a9b', lineHeight: 1.4, marginTop: '4px', fontFamily: 'Inter, sans-serif' }}>
+                <div style={{ fontFamily: B, fontSize: '11px', color: '#4a7a9b', lineHeight: 1.4, marginTop: '6px' }}>
                   {a.label}
                 </div>
               </motion.div>
@@ -250,86 +250,80 @@ export default function Home({ posts }: Props) {
         </motion.div>
       </section>
 
-      {/* ── 5 Roles Section ── */}
+      {/* ── FIVE ROLES ── */}
       <section className="py-20 px-6" style={{ background: '#080f17', borderTop: '1px solid #1a3048' }}>
         <div className="max-w-6xl mx-auto">
-          <div className="mb-12 text-center">
-            <div className="text-xs tracking-widest uppercase font-semibold mb-3 flex items-center justify-center gap-2" style={{ color: '#00d4ff', fontFamily: 'Inter, sans-serif' }}>
-              <span className="inline-block w-6 h-px" style={{ background: '#00d4ff' }} />
+          <div className="mb-12">
+            <div style={{ fontFamily: B, fontSize: '11px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: '#00d4ff', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ width: '24px', height: '1px', background: '#00d4ff', display: 'inline-block' }} />
               What I Do
-              <span className="inline-block w-6 h-px" style={{ background: '#00d4ff' }} />
             </div>
-            <h2
-              className="font-black text-white"
-              style={{ fontSize: 'clamp(1.8rem,4vw,2.5rem)', letterSpacing: '-1px', fontFamily: 'Bricolage Grotesque, sans-serif' }}
-            >
-              Five Roles. <span style={{ color: '#00d4ff' }}>One Mission.</span>
+            <h2 style={{ fontFamily: D, fontWeight: 700, fontSize: 'clamp(1.8rem,4vw,2.8rem)', letterSpacing: '-1px', color: '#e8f4ff' }}>
+              Five roles.{' '}
+              <span className="text-gradient">One mission.</span>
             </h2>
-            <p style={{ color: '#8ab4d4', marginTop: '0.75rem', fontFamily: 'Inter, sans-serif', fontSize: '15px' }}>
+            <p style={{ fontFamily: B, fontSize: '15px', color: '#8ab4d4', marginTop: '8px' }}>
               Transform how enterprises think about and use AI.
             </p>
           </div>
-
-          <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
+          <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
             {ROLES.map((role, i) => (
               <motion.div
                 key={role.title}
                 className="rounded-2xl p-6"
-                style={{
-                  background: '#0d1e2e',
-                  border: '1px solid #1a3048',
-                  borderTop: `3px solid ${role.color}`,
-                }}
+                style={{ background: '#0d1e2e', border: '1px solid #1a3048', borderTop: `3px solid ${role.color}` }}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.08 }}
-                whileHover={{ y: -3, borderColor: role.color }}
+                whileHover={{ y: -4 }}
               >
-                <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>{role.icon}</div>
-                <div
-                  className="font-bold mb-2"
-                  style={{ fontSize: '15px', color: role.color, fontFamily: 'Bricolage Grotesque, sans-serif' }}
-                >
-                  {role.title}
-                </div>
-                <div style={{ fontSize: '13px', color: '#8ab4d4', lineHeight: 1.65, fontFamily: 'Inter, sans-serif' }}>
-                  {role.desc}
-                </div>
+                <div style={{ fontSize: '1.8rem', marginBottom: '10px' }}>{role.icon}</div>
+                <div style={{ fontFamily: D, fontWeight: 700, fontSize: '15px', color: role.color, marginBottom: '8px' }}>{role.title}</div>
+                <div style={{ fontFamily: B, fontSize: '13px', color: '#8ab4d4', lineHeight: 1.65 }}>{role.desc}</div>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── Recent Posts ── */}
-      <section className="max-w-6xl mx-auto px-6 py-20">
+      {/* ── FEATURED ── */}
+      {featured.length > 0 && (
+        <section className="max-w-6xl mx-auto px-6 py-20">
+          <div className="mb-10">
+            <div style={{ fontFamily: B, fontSize: '11px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: '#00d4ff', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ width: '24px', height: '1px', background: '#00d4ff', display: 'inline-block' }} />
+              Featured
+            </div>
+            <h2 style={{ fontFamily: D, fontWeight: 700, fontSize: 'clamp(1.8rem,4vw,2.8rem)', letterSpacing: '-1px', color: '#e8f4ff' }}>
+              From the <span style={{ color: '#00d4ff' }}>Lab</span>
+            </h2>
+          </div>
+          <div className="grid gap-6" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))' }}>
+            {featured.map((p, i) => <PostCard key={p.slug} post={p} index={i} />)}
+          </div>
+        </section>
+      )}
+
+      {/* ── RECENT POSTS ── */}
+      <section className="max-w-6xl mx-auto px-6 pb-20">
         <div className="mb-10">
-          <div className="text-xs tracking-widest uppercase font-semibold mb-3 flex items-center gap-2" style={{ color: '#00d4ff', fontFamily: 'Inter, sans-serif' }}>
-            <span className="inline-block w-6 h-px" style={{ background: '#00d4ff' }} />
+          <div style={{ fontFamily: B, fontSize: '11px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: '#00d4ff', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ width: '24px', height: '1px', background: '#00d4ff', display: 'inline-block' }} />
             Latest from the Lab
           </div>
-          <h2
-            className="font-black text-white"
-            style={{ fontSize: 'clamp(1.8rem,4vw,2.8rem)', letterSpacing: '-1px', fontFamily: 'Bricolage Grotesque, sans-serif' }}
-          >
+          <h2 style={{ fontFamily: D, fontWeight: 700, fontSize: 'clamp(1.8rem,4vw,2.8rem)', letterSpacing: '-1px', color: '#e8f4ff' }}>
             Recent <span style={{ color: '#00d4ff' }}>Articles</span>
           </h2>
         </div>
-
         {recent.length === 0 ? (
           <div className="text-center py-16 rounded-2xl" style={{ background: '#0d1e2e', border: '1px solid #1a3048' }}>
             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔬</div>
-            <h3 className="font-bold text-white mb-2" style={{ fontSize: '1.2rem', fontFamily: 'Bricolage Grotesque, sans-serif' }}>
-              Lab is warming up
-            </h3>
-            <p style={{ color: '#8ab4d4', fontSize: '14px', marginBottom: '1.5rem', fontFamily: 'Inter, sans-serif' }}>
+            <h3 style={{ fontFamily: D, fontWeight: 700, fontSize: '1.2rem', color: '#e8f4ff', marginBottom: '8px' }}>Lab is warming up</h3>
+            <p style={{ fontFamily: B, color: '#8ab4d4', fontSize: '14px', marginBottom: '1.5rem' }}>
               First articles coming soon — real systems, real code, real lessons.
             </p>
             <Link href="/admin">
-              <button
-                className="px-6 py-3 rounded-xl font-semibold text-sm cursor-pointer"
-                style={{ background: 'linear-gradient(135deg,#00d4ff,#0088cc)', color: '#000', border: 'none', fontFamily: 'Inter, sans-serif' }}
-              >
+              <button style={{ background: 'linear-gradient(135deg,#00d4ff,#0088cc)', color: '#000', padding: '12px 24px', borderRadius: '12px', border: 'none', fontFamily: D, fontWeight: 700, cursor: 'pointer' }}>
                 Publish First Article →
               </button>
             </Link>
@@ -342,8 +336,7 @@ export default function Home({ posts }: Props) {
             <div className="text-center mt-10">
               <Link href="/blog">
                 <motion.button
-                  className="px-8 py-3 rounded-xl font-semibold text-sm cursor-pointer"
-                  style={{ background: 'transparent', border: '1px solid #1f3a58', color: '#e8f4ff', fontFamily: 'Inter, sans-serif' }}
+                  style={{ background: 'transparent', border: '1px solid #1f3a58', color: '#e8f4ff', padding: '12px 32px', borderRadius: '12px', fontFamily: D, fontWeight: 600, fontSize: '14px', cursor: 'pointer' }}
                   whileHover={{ background: '#0d1e2e', borderColor: '#00d4ff' }}
                 >
                   View All Articles →
@@ -354,18 +347,15 @@ export default function Home({ posts }: Props) {
         )}
       </section>
 
-      {/* ── Research Areas ── */}
+      {/* ── RESEARCH AREAS ── */}
       <section className="py-20 px-6" style={{ background: '#080f17' }}>
         <div className="max-w-6xl mx-auto">
           <div className="mb-10">
-            <div className="text-xs tracking-widest uppercase font-semibold mb-3 flex items-center gap-2" style={{ color: '#00d4ff', fontFamily: 'Inter, sans-serif' }}>
-              <span className="inline-block w-6 h-px" style={{ background: '#00d4ff' }} />
+            <div style={{ fontFamily: B, fontSize: '11px', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', color: '#00d4ff', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ width: '24px', height: '1px', background: '#00d4ff', display: 'inline-block' }} />
               Research Areas
             </div>
-            <h2
-              className="font-black text-white"
-              style={{ fontSize: 'clamp(1.8rem,4vw,2.8rem)', letterSpacing: '-1px', fontFamily: 'Bricolage Grotesque, sans-serif' }}
-            >
+            <h2 style={{ fontFamily: D, fontWeight: 700, fontSize: 'clamp(1.8rem,4vw,2.8rem)', letterSpacing: '-1px', color: '#e8f4ff' }}>
               What I <span style={{ color: '#00d4ff' }}>Build & Research</span>
             </h2>
           </div>
@@ -373,23 +363,12 @@ export default function Home({ posts }: Props) {
             {CATEGORIES.map((cat, i) => {
               const count = posts.filter((p) => p.category === cat.name).length
               return (
-                <motion.div
-                  key={cat.name}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.06 }}
-                  whileHover={{ y: -3 }}
-                >
+                <motion.div key={cat.name} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }} whileHover={{ y: -3 }}>
                   <Link href={`/blog?category=${encodeURIComponent(cat.name)}`} className="no-underline block">
-                    <div
-                      className="rounded-2xl p-6 transition-all duration-300 cursor-pointer"
-                      style={{ background: '#0d1e2e', border: '1px solid #1a3048', borderLeft: `3px solid ${cat.color}` }}
-                    >
-                      <div style={{ fontSize: '1.5rem', marginBottom: '0.75rem' }}>{cat.emoji}</div>
-                      <div className="font-bold text-sm text-white mb-1" style={{ fontFamily: 'Inter, sans-serif' }}>{cat.name}</div>
-                      <div style={{ fontSize: '12px', color: '#4a7a9b', fontFamily: 'Inter, sans-serif' }}>
-                        {count} article{count !== 1 ? 's' : ''}
-                      </div>
+                    <div className="rounded-2xl p-6 transition-all duration-300" style={{ background: '#0d1e2e', border: '1px solid #1a3048', borderLeft: `3px solid ${cat.color}` }}>
+                      <div style={{ fontSize: '1.5rem', marginBottom: '10px' }}>{cat.emoji}</div>
+                      <div style={{ fontFamily: D, fontWeight: 700, fontSize: '13px', color: '#e8f4ff', marginBottom: '4px' }}>{cat.name}</div>
+                      <div style={{ fontFamily: B, fontSize: '12px', color: '#4a7a9b' }}>{count} article{count !== 1 ? 's' : ''}</div>
                     </div>
                   </Link>
                 </motion.div>
@@ -399,35 +378,24 @@ export default function Home({ posts }: Props) {
         </div>
       </section>
 
-      {/* ── Newsletter ── */}
+      {/* ── NEWSLETTER ── */}
       <section className="max-w-6xl mx-auto px-6 py-20">
-        <div
-          className="rounded-2xl p-12 text-center"
-          style={{ background: 'linear-gradient(135deg, #0d1e2e, #112436)', border: '1px solid #1f3a58' }}
-        >
-          <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🔬</div>
-          <h2
-            className="font-black text-white mb-3"
-            style={{ fontSize: '1.8rem', letterSpacing: '-0.5px', fontFamily: 'Bricolage Grotesque, sans-serif' }}
-          >
+        <div className="rounded-2xl p-12 text-center" style={{ background: 'linear-gradient(135deg, #0d1e2e, #112436)', border: '1px solid #1f3a58' }}>
+          <div style={{ fontSize: '2rem', marginBottom: '8px' }}>🔬</div>
+          <h2 style={{ fontFamily: D, fontWeight: 700, fontSize: '1.8rem', letterSpacing: '-0.5px', color: '#e8f4ff', marginBottom: '12px' }}>
             Stay in the Loop
           </h2>
-          <p className="mb-8 max-w-lg mx-auto" style={{ color: '#8ab4d4', fontFamily: 'Inter, sans-serif' }}>
-            Get enterprise AI breakdowns, prompt engineering playbooks, agentic system walkthroughs, and R&D notes — straight from the lab.
+          <p style={{ fontFamily: B, color: '#8ab4d4', maxWidth: '500px', margin: '0 auto 2rem', lineHeight: 1.7 }}>
+            Enterprise AI breakdowns, prompt engineering playbooks, agentic system walkthroughs — straight from the lab.
           </p>
           <div className="flex gap-3 max-w-md mx-auto flex-wrap justify-center">
-            <input
-              type="email"
-              placeholder="your@email.com"
+            <input type="email" placeholder="your@email.com"
               className="flex-1 min-w-0 px-4 py-3 rounded-xl text-sm outline-none"
-              style={{ background: '#080f17', border: '1px solid #1a3048', color: '#e8f4ff', fontFamily: 'Inter, sans-serif' }}
-            />
+              style={{ background: '#080f17', border: '1px solid #1a3048', color: '#e8f4ff', fontFamily: B }} />
             <motion.button
               className="px-6 py-3 rounded-xl font-bold text-sm text-black border-none cursor-pointer whitespace-nowrap"
-              style={{ background: 'linear-gradient(135deg, #00d4ff, #0088cc)', fontFamily: 'Inter, sans-serif' }}
-              whileHover={{ y: -1 }}
-              whileTap={{ scale: 0.98 }}
-            >
+              style={{ background: 'linear-gradient(135deg, #00d4ff, #0088cc)', fontFamily: D, fontWeight: 700 }}
+              whileHover={{ y: -1 }} whileTap={{ scale: 0.98 }}>
               Subscribe
             </motion.button>
           </div>
