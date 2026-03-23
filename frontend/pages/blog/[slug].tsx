@@ -60,18 +60,28 @@ export default function ArticlePage({ post, related }: Props) {
   return (
     <Layout showProgress>
       <SEO title={post.title} description={post.excerpt} slug={post.slug} type="article" publishedTime={post.date} tags={post.tags} />
-      <div className="max-w-6xl mx-auto px-6 py-12" style={{ display:'grid', gridTemplateColumns:'1fr 280px', gap:'4rem', alignItems:'start' }}>
+
+      {/* Cover banner — full width, dark themed */}
+      <div className="w-full flex items-center justify-center overflow-hidden" style={{ background: grad, height: '320px' }}>
+        <span className="text-9xl opacity-15 select-none">{CAT_EMOJI[post.category || ''] || '📄'}</span>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-6 py-10" style={{ display:'grid', gridTemplateColumns:'1fr 280px', gap:'3rem', alignItems:'start' }}>
         <motion.article initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.5 }}>
-          <Link href="/blog" className="inline-flex items-center gap-2 text-sm mb-8 no-underline" style={{ color:'#8ab4d4' }}>← Back to Blog</Link>
-          <div className="rounded-2xl mb-10 flex items-center justify-center overflow-hidden" style={{ background:grad, height:'360px' }}>
-            <span className="text-8xl opacity-20 select-none">{CAT_EMOJI[post.category || ''] || '📄'}</span>
-          </div>
+
+          <Link href="/blog" className="inline-flex items-center gap-2 text-sm mb-6 no-underline" style={{ color:'#8ab4d4' }}>← Back to Blog</Link>
+
+          {/* Tags */}
           <div className="flex flex-wrap gap-2 mb-5">
             {post.tags?.map(t => (
               <Link key={t} href={`/blog/tag/${encodeURIComponent(t)}`} className="text-xs px-3 py-1.5 rounded-full no-underline transition-all duration-200" style={{ border:'1px solid #1f3a58', color:'#8ab4d4' }}>{t}</Link>
             ))}
           </div>
+
+          {/* Title */}
           <h1 className="font-black text-white leading-tight mb-6" style={{ fontSize:'clamp(2rem,5vw,3rem)', letterSpacing:'-1.5px' }}>{post.title}</h1>
+
+          {/* Meta bar */}
           <div className="flex items-center gap-6 py-4 mb-8 flex-wrap" style={{ borderTop:'1px solid #1a3048', borderBottom:'1px solid #1a3048' }}>
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full flex items-center justify-center font-black text-sm text-black" style={{ background:'linear-gradient(135deg,#00d4ff,#a78bfa)' }}>MP</div>
@@ -84,71 +94,91 @@ export default function ArticlePage({ post, related }: Props) {
             <div className="w-px h-8 hidden sm:block" style={{ background:'#1a3048' }} />
             <div className="text-sm font-semibold text-white">{post.category}</div>
           </div>
-          <div className="article-body">
-            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSlug]}
-              components={{
-                code({ node, className, children, ...props }: any) {
-                  const match = /language-(\w+)/.exec(className || '')
-                  return !match ? <code className={className} {...props}>{children}</code> : (
-                    <SyntaxHighlighter style={vscDarkPlus as any} language={match[1]} PreTag="div"
-                      customStyle={{ borderRadius:'12px', fontSize:'14px', border:'1px solid #1a3048', margin:'1.5rem 0' }}>
-                      {String(children).replace(/\n$/,'')}
-                    </SyntaxHighlighter>
-                  )
-                },
-                table({ children }: any) { return <div style={{ overflowX:'auto', margin:'1.5rem 0' }}><table style={{ width:'100%', borderCollapse:'collapse' }}>{children}</table></div> },
-                th({ children }: any) { return <th style={{ padding:'10px 16px', textAlign:'left', background:'#112436', color:'#e8f4ff', fontSize:'13px', fontWeight:600, border:'1px solid #1a3048' }}>{children}</th> },
-                td({ children }: any) { return <td style={{ padding:'10px 16px', fontSize:'14px', color:'#8ab4d4', border:'1px solid #1a3048' }}>{children}</td> },
-                tr({ children }: any) { return <tr style={{ borderBottom:'1px solid #1a3048' }}>{children}</tr> },
-                img({ src, alt }: any) {
-                  return (
-                    <span style={{ display:'block', margin:'2rem 0', textAlign:'center' }}>
-                      <img
-                        src={src}
-                        alt={alt || ''}
-                        style={{
-                          maxWidth:'100%',
-                          borderRadius:'12px',
-                          border:'1px solid #1a3048',
-                          boxShadow:'0 4px 24px rgba(0,0,0,0.3)',
-                        }}
-                      />
-                      {alt && (
-                        <span style={{ display:'block', fontSize:'13px', color:'#4a7a9b', marginTop:'8px', fontStyle:'italic' }}>
-                          {alt}
-                        </span>
-                      )}
-                    </span>
-                  )
-                },
-                a({ href, children }: any) {
-                  return (
-                    <a href={href} target="_blank" rel="noopener noreferrer"
-                      style={{ color:'#00d4ff', textDecoration:'underline', textUnderlineOffset:'3px' }}>
-                      {children}
-                    </a>
-                  )
-                },
-                blockquote({ children }: any) {
-                  return (
-                    <blockquote style={{
-                      borderLeft:'3px solid #00d4ff',
-                      paddingLeft:'1.5rem',
-                      margin:'2rem 0',
-                      background:'rgba(0,212,255,0.04)',
-                      borderRadius:'0 12px 12px 0',
-                      padding:'1rem 1.5rem',
-                      fontStyle:'italic',
-                      color:'#8ab4d4',
-                    }}>
-                      {children}
-                    </blockquote>
-                  )
-                },
-              }}
-            >{post.content || ''}</ReactMarkdown>
+
+          {/* ── White article card — Hashnode style ── */}
+          <div className="article-card">
+            <div className="article-body">
+              <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSlug]}
+                components={{
+                  code({ node, className, children, ...props }: any) {
+                    const match = /language-(\w+)/.exec(className || '')
+                    return !match ? <code className={className} {...props}>{children}</code> : (
+                      <SyntaxHighlighter style={vscDarkPlus as any} language={match[1]} PreTag="div"
+                        customStyle={{ borderRadius:'10px', fontSize:'14px', border:'1px solid #e5e7eb', margin:'1.5rem 0' }}>
+                        {String(children).replace(/\n$/,'')}
+                      </SyntaxHighlighter>
+                    )
+                  },
+                  table({ children }: any) {
+                    return (
+                      <div style={{ overflowX:'auto', margin:'1.5rem 0', borderRadius:'10px', border:'1px solid #e5e7eb' }}>
+                        <table style={{ width:'100%', borderCollapse:'collapse' }}>{children}</table>
+                      </div>
+                    )
+                  },
+                  th({ children }: any) {
+                    return <th style={{ padding:'10px 16px', textAlign:'left', background:'#f3f4f6', color:'#111827', fontSize:'13px', fontWeight:700, borderBottom:'2px solid #e5e7eb' }}>{children}</th>
+                  },
+                  td({ children }: any) {
+                    return <td style={{ padding:'10px 16px', fontSize:'14px', color:'#374151', borderBottom:'1px solid #f3f4f6' }}>{children}</td>
+                  },
+                  tr({ children }: any) {
+                    return <tr style={{ transition:'background 0.15s' }} onMouseEnter={e => (e.currentTarget.style.background='#f9fafb')} onMouseLeave={e => (e.currentTarget.style.background='')}>{children}</tr>
+                  },
+                  img({ src, alt }: any) {
+                    return (
+                      <span style={{ display:'block', margin:'2rem 0' }}>
+                        <img
+                          src={src}
+                          alt={alt || ''}
+                          style={{
+                            maxWidth:'100%',
+                            width:'100%',
+                            borderRadius:'10px',
+                            border:'1px solid #e5e7eb',
+                            boxShadow:'0 1px 8px rgba(0,0,0,0.08)',
+                            display:'block',
+                          }}
+                        />
+                        {alt && alt !== 'image' && alt !== 'diagram' && (
+                          <span style={{ display:'block', fontSize:'13px', color:'#6b7280', marginTop:'8px', fontStyle:'italic', textAlign:'center' }}>
+                            {alt}
+                          </span>
+                        )}
+                      </span>
+                    )
+                  },
+                  a({ href, children }: any) {
+                    return (
+                      <a href={href} target="_blank" rel="noopener noreferrer"
+                        style={{ color:'#0077cc', textDecoration:'underline', textUnderlineOffset:'3px' }}>
+                        {children}
+                      </a>
+                    )
+                  },
+                  blockquote({ children }: any) {
+                    return (
+                      <blockquote style={{
+                        borderLeft:'4px solid #00d4ff',
+                        paddingLeft:'1.5rem',
+                        margin:'2rem 0',
+                        background:'#f0fbff',
+                        borderRadius:'0 10px 10px 0',
+                        padding:'1rem 1.5rem',
+                        fontStyle:'italic',
+                        color:'#374151',
+                      }}>
+                        {children}
+                      </blockquote>
+                    )
+                  },
+                }}
+              >{post.content || ''}</ReactMarkdown>
+            </div>
           </div>
-          <div className="flex gap-3 mt-12 pt-8" style={{ borderTop:'1px solid #1a3048' }}>
+
+          {/* Share buttons */}
+          <div className="flex gap-3 mt-10 pt-8" style={{ borderTop:'1px solid #1a3048' }}>
             {[{label:'Share on 𝕏'},{label:'Share on LinkedIn'},{label: copied ? '✓ Copied!' : '🔗 Copy Link', onClick: handleCopy}].map(btn => (
               <button key={btn.label} onClick={btn.onClick} className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm cursor-pointer transition-all duration-200"
                 style={{ background:'#0d1e2e', border:'1px solid #1a3048', color: btn.label.includes('Copied') ? '#00ff9d' : '#8ab4d4', fontFamily:'Syne, sans-serif' }}>
@@ -157,6 +187,7 @@ export default function ArticlePage({ post, related }: Props) {
             ))}
           </div>
         </motion.article>
+
         <aside className="hidden lg:block"><TOC content={post.content||''} /></aside>
       </div>
       {related.length > 0 && (
