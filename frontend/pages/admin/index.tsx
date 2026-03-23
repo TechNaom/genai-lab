@@ -7,6 +7,23 @@ import { api, Post } from '../../lib/api'
 const CATEGORIES = ['AI Automation', 'Prompt Engineering', 'GenAI Systems', 'LLM Architectures', 'Mini LLM Research', 'Experiments']
 const COLORS = ['cyan', 'purple', 'green', 'orange', 'pink']
 
+// ── Cloudinary config (unsigned preset — safe to commit) ──────────────────
+const CLOUDINARY_CLOUD = 'drizd8t4g'
+const CLOUDINARY_PRESET = 'genai-lab'
+
+async function uploadToCloudinary(file: File | Blob): Promise<string> {
+  const fd = new FormData()
+  fd.append('file', file)
+  fd.append('upload_preset', CLOUDINARY_PRESET)
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {
+    method: 'POST',
+    body: fd,
+  })
+  if (!res.ok) throw new Error('Upload failed')
+  const data = await res.json()
+  return data.secure_url as string
+}
+
 function slugify(s: string) {
   return s.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_]+/g, '-').replace(/-+/g, '-').trim()
 }
@@ -31,23 +48,83 @@ function Toast({ msg, onClose }: { msg: string; onClose: () => void }) {
   )
 }
 
+function UploadingOverlay() {
+  return (
+    <div className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-xl"
+      style={{ background: 'rgba(8,15,23,0.85)', backdropFilter: 'blur(4px)' }}>
+      <motion.div
+        animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+        className="w-8 h-8 rounded-full border-2 mb-3"
+        style={{ borderColor: '#00d4ff transparent #00d4ff transparent' }}
+      />
+      <div className="text-sm font-semibold" style={{ color: '#00d4ff' }}>Uploading to Cloudinary...</div>
+      <div className="text-xs mt-1" style={{ color: '#4a7a9b' }}>Please wait</div>
+    </div>
+  )
+}
+
 function ImageModal({ onInsert, onClose }: { onInsert: (md: string) => void; onClose: () => void }) {
   const [url, setUrl] = useState('')
   const [alt, setAlt] = useState('')
+  const [uploading, setUploading] = useState(false)
   const inp = { width: '100%', background: '#080f17', border: '1px solid #1a3048', color: '#e8f4ff', padding: '10px 13px', borderRadius: '8px', fontFamily: 'Syne, sans-serif', fontSize: '14px', outline: 'none' }
   const lbl = { fontSize: '11px', color: '#4a7a9b', letterSpacing: '0.5px', textTransform: 'uppercase' as const, marginBottom: '6px', display: 'block' }
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    try {
+      const uploadedUrl = await uploadToCloudinary(file)
+      setUrl(uploadedUrl)
+    } catch { alert('Upload failed. Check your Cloudinary config.') }
+    finally { setUploading(false) }
+  }
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.7)' }} onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.75)' }} onClick={onClose}>
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-        className="rounded-2xl p-7 w-full max-w-md"
+        className="rounded-2xl p-7 w-full max-w-md relative"
         style={{ background: '#0d1e2e', border: '1px solid #1a3048' }}
         onClick={e => e.stopPropagation()}
       >
+        {uploading && <UploadingOverlay />}
         <div className="text-sm font-bold text-white mb-5">🖼️ Insert Image</div>
+
+        {/* File upload */}
+        <div className="mb-4 p-4 rounded-xl text-center cursor-pointer transition-all"
+          style={{ border: '2px dashed #1a3048', background: '#080f17' }}
+          onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = '#00d4ff' }}
+          onDragLeave={e => { e.currentTarget.style.borderColor = '#1a3048' }}
+          onDrop={async e => {
+            e.preventDefault()
+            e.currentTarget.style.borderColor = '#1a3048'
+            const file = e.dataTransfer.files[0]
+            if (file && file.type.startsWith('image/')) {
+              setUploading(true)
+              try { setUrl(await uploadToCloudinary(file)) } catch { alert('Upload failed') } finally { setUploading(false) }
+            }
+          }}
+        >
+          <div className="text-2xl mb-1">☁️</div>
+          <div className="text-xs mb-2" style={{ color: '#4a7a9b' }}>Drag & drop or click to upload</div>
+          <label className="px-3 py-1.5 rounded-lg text-xs cursor-pointer"
+            style={{ background: '#112436', border: '1px solid #1f3a58', color: '#8ab4d4', fontFamily: 'Syne, sans-serif' }}>
+            Choose File
+            <input type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
+          </label>
+        </div>
+
+        <div className="flex items-center gap-3 mb-4">
+          <div style={{ flex: 1, height: '1px', background: '#1a3048' }} />
+          <span className="text-xs" style={{ color: '#2a4a6b' }}>or paste a URL</span>
+          <div style={{ flex: 1, height: '1px', background: '#1a3048' }} />
+        </div>
+
         <div className="mb-4">
-          <label style={lbl}>Image URL *</label>
-          <input style={inp} value={url} onChange={e => setUrl(e.target.value)} placeholder="https://example.com/image.png" autoFocus />
+          <label style={lbl}>Image URL</label>
+          <input style={inp} value={url} onChange={e => setUrl(e.target.value)} placeholder="https://example.com/image.png" />
         </div>
         <div className="mb-5">
           <label style={lbl}>Alt Text / Caption</label>
@@ -55,14 +132,14 @@ function ImageModal({ onInsert, onClose }: { onInsert: (md: string) => void; onC
         </div>
         {url && (
           <div className="mb-5 rounded-xl overflow-hidden" style={{ border: '1px solid #1a3048' }}>
-            <img src={url} alt={alt} style={{ width: '100%', maxHeight: '180px', objectFit: 'cover', display: 'block' }}
+            <img src={url} alt={alt} style={{ width: '100%', maxHeight: '160px', objectFit: 'cover', display: 'block' }}
               onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
           </div>
         )}
         <div className="flex gap-3">
           <button
             onClick={() => { if (url.trim()) { onInsert(`![${alt || 'image'}](${url.trim()})`); onClose() } }}
-            disabled={!url.trim()}
+            disabled={!url.trim() || uploading}
             className="flex-1 py-3 rounded-xl text-sm font-bold cursor-pointer border-none"
             style={{ background: url.trim() ? 'linear-gradient(135deg, #00d4ff, #0088cc)' : '#1a3048', color: url.trim() ? '#000' : '#4a7a9b', fontFamily: 'Syne, sans-serif' }}
           >Insert Image</button>
@@ -93,7 +170,7 @@ function TableModal({ onInsert, onClose }: { onInsert: (md: string) => void; onC
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.7)' }} onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.75)' }} onClick={onClose}>
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
         className="rounded-2xl p-7 w-full max-w-sm"
@@ -102,30 +179,20 @@ function TableModal({ onInsert, onClose }: { onInsert: (md: string) => void; onC
       >
         <div className="text-sm font-bold text-white mb-5">📊 Insert Table</div>
         <div className="grid grid-cols-2 gap-4 mb-5">
-          <div>
-            <label style={lbl}>Rows</label>
-            <input style={inp} type="number" min={1} max={20} value={rows} onChange={e => setRows(Math.max(1, +e.target.value))} />
-          </div>
-          <div>
-            <label style={lbl}>Columns</label>
-            <input style={inp} type="number" min={1} max={10} value={cols} onChange={e => setCols(Math.max(1, +e.target.value))} />
-          </div>
+          <div><label style={lbl}>Rows</label><input style={inp} type="number" min={1} max={20} value={rows} onChange={e => setRows(Math.max(1, +e.target.value))} /></div>
+          <div><label style={lbl}>Columns</label><input style={inp} type="number" min={1} max={10} value={cols} onChange={e => setCols(Math.max(1, +e.target.value))} /></div>
         </div>
         <div className="mb-5 p-3 rounded-xl overflow-x-auto" style={{ background: '#080f17', border: '1px solid #1a3048' }}>
-          <pre style={{ fontSize: '11px', color: '#4a7a9b', margin: 0, fontFamily: 'JetBrains Mono, monospace' }}>
-            {buildTable()}
-          </pre>
+          <pre style={{ fontSize: '11px', color: '#4a7a9b', margin: 0, fontFamily: 'JetBrains Mono, monospace' }}>{buildTable()}</pre>
         </div>
         <div className="flex gap-3">
-          <button
-            onClick={() => { onInsert('\n' + buildTable()); onClose() }}
+          <button onClick={() => { onInsert('\n' + buildTable()); onClose() }}
             className="flex-1 py-3 rounded-xl text-sm font-bold cursor-pointer border-none"
-            style={{ background: 'linear-gradient(135deg, #00d4ff, #0088cc)', fontFamily: 'Syne, sans-serif', color: '#000' }}
-          >Insert Table</button>
-          <button onClick={onClose} className="px-5 py-3 rounded-xl text-sm cursor-pointer"
-            style={{ background: '#112436', border: '1px solid #1f3a58', color: '#8ab4d4', fontFamily: 'Syne, sans-serif' }}>
-            Cancel
+            style={{ background: 'linear-gradient(135deg, #00d4ff, #0088cc)', fontFamily: 'Syne, sans-serif', color: '#000' }}>
+            Insert Table
           </button>
+          <button onClick={onClose} className="px-5 py-3 rounded-xl text-sm cursor-pointer"
+            style={{ background: '#112436', border: '1px solid #1f3a58', color: '#8ab4d4', fontFamily: 'Syne, sans-serif' }}>Cancel</button>
         </div>
       </motion.div>
     </div>
@@ -138,22 +205,19 @@ interface ToolbarProps {
   onTableClick: () => void
   preview: boolean
   onTogglePreview: () => void
+  uploading: boolean
 }
 
-function MarkdownToolbar({ onAction, onImageClick, onTableClick, preview, onTogglePreview }: ToolbarProps) {
+function MarkdownToolbar({ onAction, onImageClick, onTableClick, preview, onTogglePreview, uploading }: ToolbarProps) {
   const btn = (label: string, title: string, onClick: () => void, active = false) => (
-    <button
-      key={label}
-      title={title}
-      onClick={onClick}
+    <button key={label} title={title} onClick={onClick}
       className="px-2.5 py-1.5 rounded-lg text-xs cursor-pointer transition-all select-none"
       style={{
         background: active ? 'rgba(0,212,255,0.15)' : 'transparent',
         border: active ? '1px solid rgba(0,212,255,0.4)' : '1px solid transparent',
         color: active ? '#00d4ff' : '#8ab4d4',
         fontFamily: 'JetBrains Mono, monospace',
-      }}
-    >
+      }}>
       {label}
     </button>
   )
@@ -170,12 +234,12 @@ function MarkdownToolbar({ onAction, onImageClick, onTableClick, preview, onTogg
       {div()}
       {btn('```', 'Code block', () => onAction('```python\n', '\n```', true, 'code here'))}
       {btn('❝', 'Blockquote', () => onAction('> ', '', true, 'quote text'))}
-      {btn('—', 'Horizontal rule', () => onAction('\n---\n', '', true))}
+      {btn('—', 'Divider', () => onAction('\n---\n', '', true))}
       {div()}
       {btn('• List', 'Bullet list', () => onAction('- ', '', true, 'item'))}
       {btn('1. List', 'Numbered list', () => onAction('1. ', '', true, 'item'))}
       {div()}
-      {btn('🖼 Image', 'Insert image', onImageClick)}
+      {btn(uploading ? '⏳ Uploading...' : '🖼 Image', 'Insert image', onImageClick)}
       {btn('📊 Table', 'Insert table', onTableClick)}
       {div()}
       {btn('🔗 Link', 'Insert link', () => onAction('[', '](https://)', false, 'link text'))}
@@ -189,17 +253,8 @@ function MarkdownToolbar({ onAction, onImageClick, onTableClick, preview, onTogg
 function MarkdownPreview({ content }: { content: string }) {
   const lines = content.split('\n')
   return (
-    <div style={{
-      minHeight: '320px', padding: '16px', background: '#080f17',
-      border: '1px solid #1a3048', borderRadius: '0 0 10px 10px',
-      color: '#e8f4ff', fontFamily: 'Syne, sans-serif', fontSize: '14px',
-      lineHeight: '1.7', overflowY: 'auto',
-    }}>
-      {content.trim() ? (
-        <div style={{ color: '#4a7a9b', fontSize: '11px', fontStyle: 'italic', marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #1a3048' }}>
-          Simplified preview — full render on blog page
-        </div>
-      ) : null}
+    <div style={{ minHeight: '320px', padding: '16px', background: '#080f17', border: '1px solid #1a3048', borderRadius: '0 0 10px 10px', color: '#e8f4ff', fontFamily: 'Syne, sans-serif', fontSize: '14px', lineHeight: '1.7', overflowY: 'auto' }}>
+      {content.trim() && <div style={{ color: '#4a7a9b', fontSize: '11px', fontStyle: 'italic', marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #1a3048' }}>Simplified preview — full render on blog page</div>}
       {lines.map((line, i) => {
         if (line.startsWith('## ')) return <h2 key={i} style={{ color: '#e8f4ff', fontSize: '20px', fontWeight: 700, margin: '20px 0 8px', borderBottom: '1px solid #1a3048', paddingBottom: '6px' }}>{line.slice(3)}</h2>
         if (line.startsWith('### ')) return <h3 key={i} style={{ color: '#e8f4ff', fontSize: '16px', fontWeight: 600, margin: '16px 0 6px' }}>{line.slice(4)}</h3>
@@ -208,7 +263,10 @@ function MarkdownPreview({ content }: { content: string }) {
         if (/^\d+\. /.test(line)) return <div key={i} style={{ color: '#8ab4d4', margin: '3px 0', paddingLeft: '16px' }}>{line}</div>
         if (line.startsWith('```')) return <div key={i} style={{ background: '#0d1e2e', border: '1px solid #1a3048', borderRadius: '6px', padding: '4px 10px', fontFamily: 'JetBrains Mono, monospace', fontSize: '12px', color: '#00d4ff', margin: '2px 0' }}>{line}</div>
         if (line.startsWith('---')) return <hr key={i} style={{ border: 'none', borderTop: '1px solid #1a3048', margin: '16px 0' }} />
-        if (line.startsWith('![')) return <div key={i} style={{ margin: '8px 0', color: '#00ff9d', fontSize: '12px', fontFamily: 'JetBrains Mono, monospace' }}>{line}</div>
+        if (line.match(/^!\[.*\]\(.*\)$/)) {
+          const match = line.match(/^!\[(.*)\]\((.*)\)$/)
+          if (match) return <img key={i} src={match[2]} alt={match[1]} style={{ maxWidth: '100%', borderRadius: '10px', border: '1px solid #1a3048', margin: '12px 0', display: 'block' }} />
+        }
         if (line.startsWith('|')) return <div key={i} style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '12px', color: '#8ab4d4', margin: '1px 0' }}>{line}</div>
         if (line === '') return <div key={i} style={{ height: '8px' }} />
         return <p key={i} style={{ color: '#8ab4d4', margin: '4px 0' }}>{line}</p>
@@ -240,6 +298,7 @@ export default function AdminPage() {
   const [showImageModal, setShowImageModal] = useState(false)
   const [showTableModal, setShowTableModal] = useState(false)
   const [previewMode, setPreviewMode] = useState(false)
+  const [pasteUploading, setPasteUploading] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
@@ -304,6 +363,29 @@ export default function AdminPage() {
     }, 0)
   }
 
+  // ── Paste handler: intercepts images/diagrams ──────────────────────────
+  const handlePaste = useCallback(async (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const items = Array.from(e.clipboardData.items)
+    const imageItem = items.find(item => item.type.startsWith('image/'))
+    if (!imageItem) return // plain text — let default paste handle it
+
+    e.preventDefault()
+    setPasteUploading(true)
+    setToast('⏳ Uploading pasted image...')
+
+    try {
+      const blob = imageItem.getAsFile()
+      if (!blob) throw new Error('No file')
+      const url = await uploadToCloudinary(blob)
+      insertRaw(`![diagram](${url})`)
+      setToast('✓ Image uploaded and inserted!')
+    } catch {
+      setToast('❌ Image upload failed. Try the 🖼 Image button instead.')
+    } finally {
+      setPasteUploading(false)
+    }
+  }, [content])
+
   const handlePublish = async (s: 'published' | 'draft') => {
     if (!title.trim()) { setToast('Please enter a title'); return }
     if (!token) return
@@ -321,12 +403,9 @@ export default function AdminPage() {
         await api.createPost(token, payload)
         setToast(s === 'published' ? '✓ Article published!' : 'Draft saved!')
       }
-      clearForm()
-      await loadPosts(token)
+      clearForm(); await loadPosts(token)
     } catch (e: any) {
-      const msg = typeof e === 'string' ? e
-        : e?.message && e.message !== '[object Object]' ? e.message
-        : e?.detail ? e.detail : JSON.stringify(e)
+      const msg = typeof e === 'string' ? e : e?.message && e.message !== '[object Object]' ? e.message : e?.detail ? e.detail : JSON.stringify(e)
       setToast(`Error: ${msg}`)
     } finally { setLoading(false) }
   }
@@ -362,13 +441,12 @@ export default function AdminPage() {
       <Layout>
         <Head><title>Admin — Manohar's GenAI Lab</title></Head>
         <div className="min-h-screen flex items-center justify-center px-6" style={{ paddingTop: '64px' }}>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
             className="w-full max-w-sm rounded-2xl p-10"
-            style={{ background: '#0d1e2e', border: '1px solid #1a3048' }}
-          >
+            style={{ background: '#0d1e2e', border: '1px solid #1a3048' }}>
             <div className="text-center mb-8">
-              <div className="w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl text-black mx-auto mb-4" style={{ background: 'linear-gradient(135deg, #00d4ff, #a78bfa)' }}>MP</div>
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl text-black mx-auto mb-4"
+                style={{ background: 'linear-gradient(135deg, #00d4ff, #a78bfa)' }}>MP</div>
               <h2 className="font-bold text-lg text-white">Admin Access</h2>
               <p className="text-sm mt-1" style={{ color: '#4a7a9b' }}>Manohar's GenAI Lab Dashboard</p>
             </div>
@@ -408,13 +486,9 @@ export default function AdminPage() {
           </div>
           <div className="flex gap-3">
             <button onClick={clearForm} className="px-4 py-2 rounded-lg text-sm cursor-pointer"
-              style={{ background: '#112436', border: '1px solid #1f3a58', color: '#8ab4d4', fontFamily: 'Syne, sans-serif' }}>
-              + New Post
-            </button>
+              style={{ background: '#112436', border: '1px solid #1f3a58', color: '#8ab4d4', fontFamily: 'Syne, sans-serif' }}>+ New Post</button>
             <button onClick={() => { setToken(null); sessionStorage.removeItem('genai_token') }} className="px-4 py-2 rounded-lg text-sm cursor-pointer"
-              style={{ background: '#112436', border: '1px solid #1f3a58', color: '#8ab4d4', fontFamily: 'Syne, sans-serif' }}>
-              Logout
-            </button>
+              style={{ background: '#112436', border: '1px solid #1f3a58', color: '#8ab4d4', fontFamily: 'Syne, sans-serif' }}>Logout</button>
           </div>
         </div>
 
@@ -462,31 +536,44 @@ export default function AdminPage() {
 
             <div>
               <label style={labelStyle}>Content (Markdown)</label>
+
+              {/* Paste hint banner */}
+              <div className="flex items-center gap-2 px-3 py-2 mb-1 rounded-lg text-xs" style={{ background: 'rgba(0,212,255,0.05)', border: '1px solid rgba(0,212,255,0.1)', color: '#4a7a9b' }}>
+                <span style={{ color: '#00d4ff' }}>✨</span>
+                Paste images or Claude diagrams directly into the editor — auto-uploads to Cloudinary instantly
+              </div>
+
               <MarkdownToolbar
                 onAction={insertMarkdown}
                 onImageClick={() => { setPreviewMode(false); setShowImageModal(true) }}
                 onTableClick={() => { setPreviewMode(false); setShowTableModal(true) }}
                 preview={previewMode}
                 onTogglePreview={() => setPreviewMode(p => !p)}
+                uploading={pasteUploading}
               />
+
               {previewMode ? (
                 <MarkdownPreview content={content} />
               ) : (
-                <textarea
-                  ref={textareaRef}
-                  style={{
-                    ...inputStyle,
-                    minHeight: '320px',
-                    resize: 'vertical',
-                    lineHeight: '1.6',
-                    fontFamily: 'JetBrains Mono, monospace',
-                    fontSize: '13px',
-                    borderRadius: '0 0 10px 10px',
-                  }}
-                  value={content}
-                  onChange={e => setContent(e.target.value)}
-                  placeholder={`## Introduction\n\nWrite your article in Markdown...\n\nUse the toolbar above to insert:\n• 🖼 Images — click "Image" button\n• 📊 Tables — click "Table" button\n• Code blocks, headings, lists & more\n\n\`\`\`python\n# Code example\nprint("Hello GenAI")\n\`\`\``}
-                />
+                <div className="relative">
+                  {pasteUploading && <UploadingOverlay />}
+                  <textarea
+                    ref={textareaRef}
+                    style={{
+                      ...inputStyle,
+                      minHeight: '320px',
+                      resize: 'vertical',
+                      lineHeight: '1.6',
+                      fontFamily: 'JetBrains Mono, monospace',
+                      fontSize: '13px',
+                      borderRadius: '0 0 10px 10px',
+                    }}
+                    value={content}
+                    onChange={e => setContent(e.target.value)}
+                    onPaste={handlePaste}
+                    placeholder={`## Introduction\n\nWrite your article in Markdown...\n\n💡 Tip: Paste any image or Claude diagram directly here!\nIt auto-uploads to Cloudinary and inserts the URL.\n\nOr use the toolbar:\n• 🖼 Image button — upload or paste a URL\n• 📊 Table button — generate a table\n\n\`\`\`python\n# Code example\nprint("Hello GenAI")\n\`\`\``}
+                  />
+                </div>
               )}
               <div className="flex gap-3 mt-2">
                 <span className="text-xs" style={{ color: '#2a4a6b' }}>
@@ -516,6 +603,18 @@ export default function AdminPage() {
                 ✓ Add to blog listing instantly<br />
                 ✓ Generate table of contents<br />
                 ✓ Auto-calculate reading time
+              </div>
+            </div>
+
+            <div className="rounded-2xl p-6" style={{ background: '#0d1e2e', border: '1px solid #1a3048' }}>
+              <div className="text-xs font-semibold tracking-widest uppercase mb-4" style={{ color: '#4a7a9b' }}>☁️ Image Workflow</div>
+              <div className="text-xs leading-loose" style={{ color: '#4a7a9b' }}>
+                <strong style={{ color: '#00d4ff' }}>Auto (recommended):</strong><br />
+                Copy any image → Paste in editor → Auto-uploads ✓<br /><br />
+                <strong style={{ color: '#8ab4d4' }}>Manual:</strong><br />
+                Click 🖼 Image → Upload file or paste URL<br /><br />
+                <strong style={{ color: '#8ab4d4' }}>Markdown:</strong><br />
+                <code style={{ color: '#00d4ff', fontFamily: 'JetBrains Mono, monospace' }}>![alt](url)</code>
               </div>
             </div>
 
