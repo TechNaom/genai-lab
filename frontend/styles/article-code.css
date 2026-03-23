@@ -1,0 +1,66 @@
+/* ── Article Body — Code Block Visibility Fix ────────────────────────────────
+   Add this file to frontend/styles/ and import it in _app.tsx or globals.css:
+   import '../styles/article-code.css'
+   ──────────────────────────────────────────────────────────────────────────── */
+
+/* Fenced / multi-line code blocks */
+.article-body pre {
+  background: #0f1923 !important;
+  border: 1px solid #00d4ff40 !important;
+  border-left: 4px solid #00d4ff !important;
+  border-radius: 10px !important;
+  padding: 1.25rem 1.5rem !important;
+  margin: 1.75rem 0 !important;
+  overflow-x: auto !important;
+  box-shadow: 0 0 24px rgba(0, 212, 255, 0.07) !important;
+}
+
+.article-body pre code {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  font-size: 0.875rem !important;
+  line-height: 1.7 !important;
+  color: #e2f0fb !important;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace !important;
+}
+
+/* Inline code */
+.article-body code:not(pre code) {
+  background: #112436 !important;
+  border: 1px solid #1a3a58 !important;
+  border-radius: 5px !important;
+  padding: 0.15em 0.45em !important;
+  font-size: 0.85em !important;
+  color: #00d4ff !important;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace !important;
+  white-space: nowrap;
+}
+
+/* Syntax token colours (works with highlight.js / prism output) */
+.article-body pre .token.comment,
+.article-body pre .hljs-comment { color: #5f8a99 !important; font-style: italic; }
+
+.article-body pre .token.keyword,
+.article-body pre .hljs-keyword { color: #a78bfa !important; }
+
+.article-body pre .token.string,
+.article-body pre .hljs-string { color: #86efac !important; }
+
+.article-body pre .token.number,
+.article-body pre .hljs-number { color: #fbbf24 !important; }
+
+.article-body pre .token.function,
+.article-body pre .hljs-title { color: #00d4ff !important; }
+
+.article-body pre .token.operator,
+.article-body pre .hljs-operator { color: #f472b6 !important; }
+
+.article-body pre .token.class-name,
+.article-body pre .hljs-class { color: #34d399 !important; }
+
+/* Scrollbar styling for code blocks */
+.article-body pre::-webkit-scrollbar { height: 6px; }
+.article-body pre::-webkit-scrollbar-track { background: #0d1e2e; border-radius: 3px; }
+.article-body pre::-webkit-scrollbar-thumb { background: #1a3a58; border-radius: 3px; }
+.article-body pre::-webkit-scrollbar-thumb:hover { background: #00d4ff55; }
