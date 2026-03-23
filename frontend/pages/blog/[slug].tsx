@@ -10,7 +10,27 @@ import { COVER_GRADIENTS, CAT_EMOJI, formatDate } from '../../lib/utils'
 
 interface Props { post: Post; related: Post[] }
 
-function TOC({ content }: { content: string }) {
+// ── Share helpers ──────────────────────────────────────────────────────────────
+function shareOnX(url: string, title: string) {
+  const tweet = `${title}\n${url}\n\nby @ManoharPap91329`
+  window.open(
+    `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweet)}`,
+    '_blank',
+    'noopener,noreferrer'
+  )
+}
+
+function shareOnLinkedIn(url: string) {
+  window.open(
+    `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+    '_blank',
+    'noopener,noreferrer'
+  )
+}
+
+// ── Table of Contents ──────────────────────────────────────────────────────────
+function TOC({ content, title }: { content: string; title: string }) {
+  const [tocCopied, setTocCopied] = useState(false)
   const headings: { level: number; text: string; id: string }[] = []
 
   // Parse HTML <h2> and <h3> tags (content is stored as HTML, not Markdown)
@@ -32,6 +52,19 @@ function TOC({ content }: { content: string }) {
       id: text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')
     })
   })
+
+  const handleTocShare = (icon: string) => {
+    const url = typeof window !== 'undefined' ? window.location.href : ''
+    if (icon === '𝕏') {
+      shareOnX(url, title)
+    } else if (icon === 'in') {
+      shareOnLinkedIn(url)
+    } else if (icon === '🔗') {
+      navigator.clipboard?.writeText(url)
+      setTocCopied(true)
+      setTimeout(() => setTocCopied(false), 2000)
+    }
+  }
 
   if (!headings.length) return null
 
@@ -63,14 +96,24 @@ function TOC({ content }: { content: string }) {
       <div className="mt-6 pt-5" style={{ borderTop: '1px solid #1a3048' }}>
         <div className="text-xs tracking-widest uppercase mb-3" style={{ color: '#4a7a9b' }}>Share</div>
         <div className="flex gap-2">
-          {['𝕏', 'in', '🔗'].map(icon => (
+          {[
+            { icon: '𝕏',  label: 'Share on X' },
+            { icon: 'in', label: 'Share on LinkedIn' },
+            { icon: '🔗', label: tocCopied ? 'Copied!' : 'Copy link' },
+          ].map(({ icon, label }) => (
             <button
               key={icon}
+              title={label}
               className="flex-1 py-2 rounded-lg text-sm cursor-pointer transition-all duration-200"
-              style={{ background: '#112436', border: '1px solid #1a3048', color: '#8ab4d4', fontFamily: 'Syne, sans-serif' }}
-              onClick={() => icon === '🔗' && navigator.clipboard?.writeText(window.location.href)}
+              style={{
+                background: '#112436',
+                border: '1px solid #1a3048',
+                color: icon === '🔗' && tocCopied ? '#00ff9d' : '#8ab4d4',
+                fontFamily: 'Syne, sans-serif',
+              }}
+              onClick={() => handleTocShare(icon)}
             >
-              {icon}
+              {icon === '🔗' && tocCopied ? '✓' : icon}
             </button>
           ))}
         </div>
@@ -79,14 +122,21 @@ function TOC({ content }: { content: string }) {
   )
 }
 
+// ── Article Page ───────────────────────────────────────────────────────────────
 export default function ArticlePage({ post, related }: Props) {
   const [copied, setCopied] = useState(false)
   const grad = COVER_GRADIENTS[post.color || 'cyan']
+
+  const getPageUrl = () => typeof window !== 'undefined' ? window.location.href : ''
+
   const handleCopy = () => {
-    navigator.clipboard?.writeText(window.location.href)
+    navigator.clipboard?.writeText(getPageUrl())
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
+
+  const handleShareX = () => shareOnX(getPageUrl(), post.title)
+  const handleShareLinkedIn = () => shareOnLinkedIn(getPageUrl())
 
   return (
     <Layout showProgress>
@@ -183,30 +233,37 @@ export default function ArticlePage({ post, related }: Props) {
 
           {/* Share buttons */}
           <div className="flex gap-3 mt-10 pt-8" style={{ borderTop: '1px solid #1a3048' }}>
-            {[
-              { label: 'Share on 𝕏' },
-              { label: 'Share on LinkedIn' },
-              { label: copied ? '✓ Copied!' : '🔗 Copy Link', onClick: handleCopy }
-            ].map(btn => (
-              <button
-                key={btn.label}
-                onClick={btn.onClick}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm cursor-pointer transition-all duration-200"
-                style={{
-                  background: '#0d1e2e',
-                  border: '1px solid #1a3048',
-                  color: btn.label.includes('Copied') ? '#00ff9d' : '#8ab4d4',
-                  fontFamily: 'Syne, sans-serif'
-                }}
-              >
-                {btn.label}
-              </button>
-            ))}
+            <button
+              onClick={handleShareX}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm cursor-pointer transition-all duration-200"
+              style={{ background: '#0d1e2e', border: '1px solid #1a3048', color: '#8ab4d4', fontFamily: 'Syne, sans-serif' }}
+            >
+              Share on 𝕏
+            </button>
+            <button
+              onClick={handleShareLinkedIn}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm cursor-pointer transition-all duration-200"
+              style={{ background: '#0d1e2e', border: '1px solid #1a3048', color: '#8ab4d4', fontFamily: 'Syne, sans-serif' }}
+            >
+              Share on LinkedIn
+            </button>
+            <button
+              onClick={handleCopy}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm cursor-pointer transition-all duration-200"
+              style={{
+                background: '#0d1e2e',
+                border: '1px solid #1a3048',
+                color: copied ? '#00ff9d' : '#8ab4d4',
+                fontFamily: 'Syne, sans-serif',
+              }}
+            >
+              {copied ? '✓ Copied!' : '🔗 Copy Link'}
+            </button>
           </div>
         </motion.article>
 
         <aside className="hidden lg:block">
-          <TOC content={post.content || ''} />
+          <TOC content={post.content || ''} title={post.title} />
         </aside>
       </div>
 
