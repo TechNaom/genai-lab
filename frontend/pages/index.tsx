@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import Layout from '../components/layout/Layout'
 import PostCard from '../components/blog/PostCard'
 import NewsletterForm from '../components/ui/NewsletterForm'
+import { api } from '../lib/api'
 
 const CATEGORIES = [
   { name: 'AI Automation', emoji: '🤖', color: '#00d4ff' },
@@ -23,15 +24,20 @@ const ROLES = [
   { icon: '🎓', title: 'GenAI Educator', desc: "AI Ignition program — teaching engineers inside one of the world's largest banks", color: '#ffd700' },
 ]
 
-const ACHIEVEMENTS = [
-  { metric: '4×', label: 'Throughput gain on enterprise AI pipelines' },
-  { metric: '75%', label: 'Manual effort eliminated via automation' },
-  { metric: '20K+', label: 'Enterprise workflows powered by AI' },
-  { metric: '167+', label: 'Prompt scenarios validated in production' },
-]
-
 const D = 'Montserrat, sans-serif'
 const B = 'Montserrat, sans-serif'
+
+interface Post {
+  slug: string
+  title: string
+  excerpt: string
+  date: string
+  category: string
+  tags?: string[]
+  featured?: boolean
+  color?: string
+  readTime?: number
+}
 
 interface Props { posts: Post[] }
 
@@ -92,14 +98,13 @@ export default function Home({ posts }: Props) {
             <div style={{ fontSize: '11px', color: '#00d4ff', fontWeight: 600, fontFamily: B }}>AI Ignition Educator</div>
           </motion.div>
 
-          {/* HERO TITLE — fixed sizes */}
+          {/* HERO TITLE */}
           <motion.h1
             style={{ fontFamily: D, marginBottom: '2rem' }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            {/* "MANOHAR'S" — small label line */}
             <span
               className="block"
               style={{
@@ -114,7 +119,6 @@ export default function Home({ posts }: Props) {
             >
               Manohar's
             </span>
-            {/* "GENAI LAB." — the hero line, refined size */}
             <span
               className="block"
               style={{
@@ -130,7 +134,7 @@ export default function Home({ posts }: Props) {
             </span>
           </motion.h1>
 
-          {/* Description — plain white Montserrat */}
+          {/* Description */}
           <motion.p
             className="mx-auto mb-10"
             style={{
@@ -150,7 +154,7 @@ export default function Home({ posts }: Props) {
 
           {/* CTAs */}
           <motion.div
-            className="flex gap-4 justify-center flex-wrap mb-16"
+            className="flex gap-4 justify-center flex-wrap"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
@@ -173,29 +177,6 @@ export default function Home({ posts }: Props) {
                 View Projects
               </motion.button>
             </Link>
-          </motion.div>
-
-          {/* Achievement metrics */}
-          <motion.div
-            className="grid gap-4 mx-auto"
-            style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', maxWidth: '780px', paddingTop: '2rem', borderTop: '1px solid rgba(26,48,72,0.8)' }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.75 }}
-          >
-            {ACHIEVEMENTS.map((a, i) => (
-              <motion.div
-                key={a.metric}
-                className="text-center rounded-xl p-4"
-                style={{ background: 'rgba(13,30,46,0.6)', border: '1px solid #1a3048' }}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.75 + i * 0.1 }}
-              >
-                <div style={{ fontFamily: D, fontWeight: 800, fontSize: '2rem', letterSpacing: '-1.5px', color: '#00d4ff', lineHeight: 1 }}>{a.metric}</div>
-                <div style={{ fontFamily: B, fontSize: '11px', color: '#4a7a9b', lineHeight: 1.4, marginTop: '6px' }}>{a.label}</div>
-              </motion.div>
-            ))}
           </motion.div>
         </motion.div>
       </section>
