@@ -101,45 +101,82 @@ code:not(pre code) {
   color: var(--accent);
 }
 
+/* ── White article card — Hashnode-style reading experience ── */
+.article-card {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  padding: 3rem;
+  box-shadow: 0 1px 12px rgba(0,0,0,0.06);
+  margin-bottom: 2rem;
+}
+
 .article-body {
   font-family: var(--font-body);
   font-size: 1.05rem;
   font-weight: 400;
   line-height: 1.9;
-  color: var(--text2);
+  color: #374151;
 }
 
 .article-body h2 {
   font-family: var(--font-display);
-  font-size: 1.8rem;
+  font-size: 1.7rem;
   font-weight: 800;
   letter-spacing: -0.5px;
-  color: var(--text);
+  color: #111827;
   margin: 2.5rem 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #f3f4f6;
 }
 
 .article-body h3 {
   font-family: var(--font-display);
-  font-size: 1.3rem;
+  font-size: 1.25rem;
   font-weight: 700;
-  color: var(--text);
+  color: #1f2937;
   margin: 2rem 0 0.75rem;
 }
 
-.article-body p         { margin-bottom: 1.5rem; }
+.article-body h4 {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #374151;
+  margin: 1.5rem 0 0.5rem;
+}
+
+.article-body p         { margin-bottom: 1.5rem; color: #374151; }
 .article-body ul,
-.article-body ol        { padding-left: 1.5rem; margin-bottom: 1.5rem; }
+.article-body ol        { padding-left: 1.75rem; margin-bottom: 1.5rem; color: #374151; }
 .article-body li        { margin-bottom: 0.5rem; }
-.article-body strong    { color: var(--text); font-weight: 700; }
+.article-body strong    { color: #111827; font-weight: 700; }
+.article-body em        { color: #4b5563; }
+
+.article-body code:not(pre code) {
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  padding: 2px 7px;
+  border-radius: 5px;
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  color: #d63384;
+}
 
 .article-body blockquote {
-  border-left: 3px solid var(--accent);
+  border-left: 4px solid #00d4ff;
   padding: 1rem 1.5rem;
   margin: 2rem 0;
-  background: rgba(0,212,255,0.04);
-  border-radius: 0 12px 12px 0;
+  background: #f0fbff;
+  border-radius: 0 10px 10px 0;
   font-style: italic;
+  color: #374151;
 }
+
+@media (max-width: 640px) {
+  .article-card { padding: 1.5rem; border-radius: 12px; }
+}
+
 
 ::-webkit-scrollbar       { width: 5px; }
 ::-webkit-scrollbar-track { background: var(--bg2); }
