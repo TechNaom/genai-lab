@@ -1,4 +1,7 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import dynamic from 'next/dynamic'
+
+const TiptapEditor = dynamic(() => import('../../components/admin/TiptapEditor'), { ssr: false })
 import Head from 'next/head'
 import { motion, AnimatePresence } from 'framer-motion'
 import Layout from '../../components/layout/Layout'
@@ -580,51 +583,12 @@ export default function AdminPage() {
             </div>
 
             <div>
-              <label style={labelStyle}>Content (Markdown)</label>
-
-              {/* Paste hint banner */}
-              <div className="flex items-center gap-2 px-3 py-2 mb-1 rounded-lg text-xs" style={{ background: 'rgba(0,212,255,0.05)', border: '1px solid rgba(0,212,255,0.1)', color: '#4a7a9b' }}>
-                <span style={{ color: '#00d4ff' }}>✨</span>
-                Paste images/diagrams → auto-uploads · Paste tables from Claude → auto-converts to Markdown
-              </div>
-
-              <MarkdownToolbar
-                onAction={insertMarkdown}
-                onImageClick={() => { setPreviewMode(false); setShowImageModal(true) }}
-                onTableClick={() => { setPreviewMode(false); setShowTableModal(true) }}
-                preview={previewMode}
-                onTogglePreview={() => setPreviewMode(p => !p)}
-                uploading={pasteUploading}
+              <label style={labelStyle}>Content</label>
+              <TiptapEditor
+                value={content}
+                onChange={setContent}
+                placeholder="Start writing your article... Paste images or tables from Claude directly!"
               />
-
-              {previewMode ? (
-                <MarkdownPreview content={content} />
-              ) : (
-                <div className="relative">
-                  {pasteUploading && <UploadingOverlay />}
-                  <textarea
-                    ref={textareaRef}
-                    style={{
-                      ...inputStyle,
-                      minHeight: '320px',
-                      resize: 'vertical',
-                      lineHeight: '1.6',
-                      fontFamily: 'JetBrains Mono, monospace',
-                      fontSize: '13px',
-                      borderRadius: '0 0 10px 10px',
-                    }}
-                    value={content}
-                    onChange={e => setContent(e.target.value)}
-                    onPaste={handlePaste}
-                    placeholder={`## Introduction\n\nWrite your article in Markdown...\n\n💡 Tip: Paste any image or Claude diagram directly here!\nIt auto-uploads to Cloudinary and inserts the URL.\n\nOr use the toolbar:\n• 🖼 Image button — upload or paste a URL\n• 📊 Table button — generate a table\n\n\`\`\`python\n# Code example\nprint("Hello GenAI")\n\`\`\``}
-                  />
-                </div>
-              )}
-              <div className="flex gap-3 mt-2">
-                <span className="text-xs" style={{ color: '#2a4a6b' }}>
-                  {content.length} chars · {content.split(/\s+/).filter(Boolean).length} words · ~{Math.ceil(content.split(/\s+/).filter(Boolean).length / 200)} min read
-                </span>
-              </div>
             </div>
           </div>
 
