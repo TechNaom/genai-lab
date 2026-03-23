@@ -366,24 +366,69 @@ export default function AdminPage() {
   // ── Paste handler: intercepts images/diagrams ──────────────────────────
   const handlePaste = useCallback(async (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const items = Array.from(e.clipboardData.items)
+
+    // ── 1. Image paste → upload to Cloudinary ──────────────────────────────
     const imageItem = items.find(item => item.type.startsWith('image/'))
-    if (!imageItem) return // plain text — let default paste handle it
-
-    e.preventDefault()
-    setPasteUploading(true)
-    setToast('⏳ Uploading pasted image...')
-
-    try {
-      const blob = imageItem.getAsFile()
-      if (!blob) throw new Error('No file')
-      const url = await uploadToCloudinary(blob)
-      insertRaw(`![diagram](${url})`)
-      setToast('✓ Image uploaded and inserted!')
-    } catch {
-      setToast('❌ Image upload failed. Try the 🖼 Image button instead.')
-    } finally {
-      setPasteUploading(false)
+    if (imageItem) {
+      e.preventDefault()
+      setPasteUploading(true)
+      setToast('⏳ Uploading pasted image...')
+      try {
+        const blob = imageItem.getAsFile()
+        if (!blob) throw new Error('No file')
+        const url = await uploadToCloudinary(blob)
+        insertRaw(`![diagram](${url})`)
+        setToast('✓ Image uploaded and inserted!')
+      } catch {
+        setToast('❌ Image upload failed. Try the 🖼 Image button instead.')
+      } finally {
+        setPasteUploading(false)
+      }
+      return
     }
+
+    // ── 2. HTML paste containing a table → convert to Markdown ────────────
+    const htmlItem = items.find(item => item.type === 'text/html')
+    if (htmlItem) {
+      htmlItem.getAsString((html) => {
+        if (!html.includes('<table')) return // no table — let default paste handle it
+
+        e.preventDefault()
+
+        // Parse HTML and extract table(s)
+        const parser = new DOMParser()
+        const doc = parser.parseFromString(html, 'text/html')
+        const tables = Array.from(doc.querySelectorAll('table'))
+
+        if (tables.length === 0) return
+
+        const markdownTables = tables.map((table) => {
+          const rows = Array.from(table.querySelectorAll('tr'))
+          if (rows.length === 0) return ''
+
+          const parseRow = (row: Element) =>
+            Array.from(row.querySelectorAll('th, td'))
+              .map(cell => cell.textContent?.trim().replace(/\|/g, '\\|') || '')
+
+          const headerRow = parseRow(rows[0])
+          const separator = headerRow.map(() => '---')
+          const bodyRows = rows.slice(1).map(parseRow)
+
+          const lines = [
+            `| ${headerRow.join(' | ')} |`,
+            `| ${separator.join(' | ')} |`,
+            ...bodyRows.map(r => `| ${r.join(' | ')} |`),
+          ]
+          return lines.join('\n')
+        })
+
+        insertRaw('\n' + markdownTables.join('\n\n') + '\n')
+        setToast('✓ Table converted to Markdown!')
+      })
+      return
+    }
+
+    // ── 3. Plain text — default browser paste ─────────────────────────────
   }, [content])
 
   const handlePublish = async (s: 'published' | 'draft') => {
@@ -540,7 +585,7 @@ export default function AdminPage() {
               {/* Paste hint banner */}
               <div className="flex items-center gap-2 px-3 py-2 mb-1 rounded-lg text-xs" style={{ background: 'rgba(0,212,255,0.05)', border: '1px solid rgba(0,212,255,0.1)', color: '#4a7a9b' }}>
                 <span style={{ color: '#00d4ff' }}>✨</span>
-                Paste images or Claude diagrams directly into the editor — auto-uploads to Cloudinary instantly
+                Paste images/diagrams → auto-uploads · Paste tables from Claude → auto-converts to Markdown
               </div>
 
               <MarkdownToolbar
