@@ -123,7 +123,7 @@ function TOC({ content, title }: { content: string; title: string }) {
 export default function ArticlePage({ post, related }: Props) {
   const [copied, setCopied] = useState(false)
   const grad = COVER_GRADIENTS[post.color || 'cyan']
-  const coverImage = (post as any).cover_image || ''
+  const coverImage = post.cover_image || ''
 
   const getPageUrl = () => typeof window !== 'undefined' ? window.location.href : ''
   const handleCopy = () => {
