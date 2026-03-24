@@ -66,6 +66,128 @@ function UploadingOverlay() {
   )
 }
 
+// ── Cover Image Uploader ──────────────────────────────────────────────────────
+function CoverImageUploader({
+  value,
+  onChange,
+}: {
+  value: string
+  onChange: (url: string) => void
+}) {
+  const [uploading, setUploading] = useState(false)
+  const [dragOver, setDragOver] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const handleFile = async (file: File) => {
+    if (!file.type.startsWith('image/')) return
+    setUploading(true)
+    try {
+      const url = await uploadToCloudinary(file)
+      onChange(url)
+    } catch {
+      alert('Cover image upload failed. Check your Cloudinary config.')
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  return (
+    <div className="mb-4">
+      <label style={{ fontSize: '11px', color: '#4a7a9b', letterSpacing: '0.5px', textTransform: 'uppercase' as const, marginBottom: '6px', display: 'block' }}>
+        Cover Image
+      </label>
+
+      {/* Preview */}
+      {value && !uploading && (
+        <div className="relative mb-3 rounded-xl overflow-hidden" style={{ border: '1px solid #1a3048', height: '160px' }}>
+          <img src={value} alt="Cover" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+          <button
+            onClick={() => onChange('')}
+            className="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center text-xs cursor-pointer border-none"
+            style={{ background: 'rgba(255,77,109,0.85)', color: '#fff', fontWeight: 700 }}
+            title="Remove cover image"
+          >✕</button>
+          <div className="absolute bottom-2 left-2 px-2 py-1 rounded-lg text-xs"
+            style={{ background: 'rgba(13,30,46,0.85)', color: '#00ff9d', fontFamily: 'Syne, sans-serif' }}>
+            ✓ Cover set
+          </div>
+        </div>
+      )}
+
+      {/* Upload zone */}
+      {!value && (
+        <div
+          className="relative rounded-xl text-center cursor-pointer transition-all duration-200"
+          style={{
+            border: `2px dashed ${dragOver ? '#00d4ff' : '#1a3048'}`,
+            background: dragOver ? 'rgba(0,212,255,0.04)' : '#080f17',
+            padding: '28px 16px',
+          }}
+          onDragOver={e => { e.preventDefault(); setDragOver(true) }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={async e => {
+            e.preventDefault(); setDragOver(false)
+            const file = e.dataTransfer.files[0]
+            if (file) handleFile(file)
+          }}
+          onClick={() => inputRef.current?.click()}
+        >
+          {uploading ? (
+            <div className="flex flex-col items-center gap-2">
+              <motion.div
+                animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                className="w-7 h-7 rounded-full border-2"
+                style={{ borderColor: '#00d4ff transparent #00d4ff transparent' }}
+              />
+              <div className="text-xs" style={{ color: '#00d4ff' }}>Uploading cover...</div>
+            </div>
+          ) : (
+            <>
+              <div className="text-3xl mb-2">🖼️</div>
+              <div className="text-sm font-semibold mb-1" style={{ color: '#8ab4d4' }}>
+                {dragOver ? 'Drop to upload' : 'Upload cover image'}
+              </div>
+              <div className="text-xs" style={{ color: '#4a7a9b' }}>
+                Drag & drop or click · JPG, PNG, WebP · Recommended: 1200×630px
+              </div>
+            </>
+          )}
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f) }}
+          />
+        </div>
+      )}
+
+      {/* URL input fallback */}
+      <div className="mt-2 flex gap-2">
+        <input
+          style={{
+            flex: 1, background: '#080f17', border: '1px solid #1a3048',
+            color: '#e8f4ff', padding: '8px 12px', borderRadius: '8px',
+            fontFamily: 'Syne, sans-serif', fontSize: '12px', outline: 'none',
+          }}
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          placeholder="Or paste image URL directly..."
+        />
+        {value && (
+          <button
+            onClick={() => onChange('')}
+            className="px-3 py-2 rounded-lg text-xs cursor-pointer"
+            style={{ background: 'rgba(255,77,109,0.1)', border: '1px solid rgba(255,77,109,0.2)', color: '#ff4d6d', fontFamily: 'Syne, sans-serif', whiteSpace: 'nowrap' }}
+          >
+            Remove
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
+
 function ImageModal({ onInsert, onClose }: { onInsert: (md: string) => void; onClose: () => void }) {
   const [url, setUrl] = useState('')
   const [alt, setAlt] = useState('')
@@ -95,7 +217,6 @@ function ImageModal({ onInsert, onClose }: { onInsert: (md: string) => void; onC
         {uploading && <UploadingOverlay />}
         <div className="text-sm font-bold text-white mb-5">🖼️ Insert Image</div>
 
-        {/* File upload */}
         <div className="mb-4 p-4 rounded-xl text-center cursor-pointer transition-all"
           style={{ border: '2px dashed #1a3048', background: '#080f17' }}
           onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor = '#00d4ff' }}
@@ -202,83 +323,6 @@ function TableModal({ onInsert, onClose }: { onInsert: (md: string) => void; onC
   )
 }
 
-interface ToolbarProps {
-  onAction: (prefix: string, suffix?: string, block?: boolean, placeholder?: string) => void
-  onImageClick: () => void
-  onTableClick: () => void
-  preview: boolean
-  onTogglePreview: () => void
-  uploading: boolean
-}
-
-function MarkdownToolbar({ onAction, onImageClick, onTableClick, preview, onTogglePreview, uploading }: ToolbarProps) {
-  const btn = (label: string, title: string, onClick: () => void, active = false) => (
-    <button key={label} title={title} onClick={onClick}
-      className="px-2.5 py-1.5 rounded-lg text-xs cursor-pointer transition-all select-none"
-      style={{
-        background: active ? 'rgba(0,212,255,0.15)' : 'transparent',
-        border: active ? '1px solid rgba(0,212,255,0.4)' : '1px solid transparent',
-        color: active ? '#00d4ff' : '#8ab4d4',
-        fontFamily: 'JetBrains Mono, monospace',
-      }}>
-      {label}
-    </button>
-  )
-  const div = () => <span style={{ width: '1px', height: '18px', background: '#1a3048', display: 'inline-block', margin: '0 4px', verticalAlign: 'middle' }} />
-
-  return (
-    <div className="flex flex-wrap items-center gap-1 px-3 py-2 rounded-t-xl" style={{ background: '#0a1929', border: '1px solid #1a3048', borderBottom: 'none' }}>
-      {btn('H2', 'Heading 2', () => onAction('## ', '', true, 'Heading'))}
-      {btn('H3', 'Heading 3', () => onAction('### ', '', true, 'Heading'))}
-      {div()}
-      {btn('B', 'Bold', () => onAction('**', '**', false, 'bold text'))}
-      {btn('I', 'Italic', () => onAction('_', '_', false, 'italic text'))}
-      {btn('`', 'Inline code', () => onAction('`', '`', false, 'code'))}
-      {div()}
-      {btn('```', 'Code block', () => onAction('```python\n', '\n```', true, 'code here'))}
-      {btn('❝', 'Blockquote', () => onAction('> ', '', true, 'quote text'))}
-      {btn('—', 'Divider', () => onAction('\n---\n', '', true))}
-      {div()}
-      {btn('• List', 'Bullet list', () => onAction('- ', '', true, 'item'))}
-      {btn('1. List', 'Numbered list', () => onAction('1. ', '', true, 'item'))}
-      {div()}
-      {btn(uploading ? '⏳ Uploading...' : '🖼 Image', 'Insert image', onImageClick)}
-      {btn('📊 Table', 'Insert table', onTableClick)}
-      {div()}
-      {btn('🔗 Link', 'Insert link', () => onAction('[', '](https://)', false, 'link text'))}
-      <div className="ml-auto">
-        {btn(preview ? '✏️ Edit' : '👁 Preview', preview ? 'Back to editor' : 'Preview', onTogglePreview, preview)}
-      </div>
-    </div>
-  )
-}
-
-function MarkdownPreview({ content }: { content: string }) {
-  const lines = content.split('\n')
-  return (
-    <div style={{ minHeight: '320px', padding: '16px', background: '#080f17', border: '1px solid #1a3048', borderRadius: '0 0 10px 10px', color: '#e8f4ff', fontFamily: 'Syne, sans-serif', fontSize: '14px', lineHeight: '1.7', overflowY: 'auto' }}>
-      {content.trim() && <div style={{ color: '#4a7a9b', fontSize: '11px', fontStyle: 'italic', marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #1a3048' }}>Simplified preview — full render on blog page</div>}
-      {lines.map((line, i) => {
-        if (line.startsWith('## ')) return <h2 key={i} style={{ color: '#e8f4ff', fontSize: '20px', fontWeight: 700, margin: '20px 0 8px', borderBottom: '1px solid #1a3048', paddingBottom: '6px' }}>{line.slice(3)}</h2>
-        if (line.startsWith('### ')) return <h3 key={i} style={{ color: '#e8f4ff', fontSize: '16px', fontWeight: 600, margin: '16px 0 6px' }}>{line.slice(4)}</h3>
-        if (line.startsWith('> ')) return <blockquote key={i} style={{ borderLeft: '3px solid #00d4ff', paddingLeft: '12px', margin: '8px 0', color: '#8ab4d4', fontStyle: 'italic' }}>{line.slice(2)}</blockquote>
-        if (line.startsWith('- ') || line.startsWith('* ')) return <div key={i} style={{ color: '#8ab4d4', margin: '3px 0', paddingLeft: '16px' }}>• {line.slice(2)}</div>
-        if (/^\d+\. /.test(line)) return <div key={i} style={{ color: '#8ab4d4', margin: '3px 0', paddingLeft: '16px' }}>{line}</div>
-        if (line.startsWith('```')) return <div key={i} style={{ background: '#0d1e2e', border: '1px solid #1a3048', borderRadius: '6px', padding: '4px 10px', fontFamily: 'JetBrains Mono, monospace', fontSize: '12px', color: '#00d4ff', margin: '2px 0' }}>{line}</div>
-        if (line.startsWith('---')) return <hr key={i} style={{ border: 'none', borderTop: '1px solid #1a3048', margin: '16px 0' }} />
-        if (line.match(/^!\[.*\]\(.*\)$/)) {
-          const match = line.match(/^!\[(.*)\]\((.*)\)$/)
-          if (match) return <img key={i} src={match[2]} alt={match[1]} style={{ maxWidth: '100%', borderRadius: '10px', border: '1px solid #1a3048', margin: '12px 0', display: 'block' }} />
-        }
-        if (line.startsWith('|')) return <div key={i} style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '12px', color: '#8ab4d4', margin: '1px 0' }}>{line}</div>
-        if (line === '') return <div key={i} style={{ height: '8px' }} />
-        return <p key={i} style={{ color: '#8ab4d4', margin: '4px 0' }}>{line}</p>
-      })}
-      {!content.trim() && <div style={{ color: '#2a4a6b', fontStyle: 'italic' }}>Nothing to preview yet...</div>}
-    </div>
-  )
-}
-
 export default function AdminPage() {
   const [token, setToken] = useState<string | null>(null)
   const [loginUser, setLoginUser] = useState('admin')
@@ -294,6 +338,7 @@ export default function AdminPage() {
   const [tags, setTags] = useState('')
   const [excerpt, setExcerpt] = useState('')
   const [color, setColor] = useState('cyan')
+  const [coverImage, setCoverImage] = useState('')   // ← NEW
   const [content, setContent] = useState('')
   const [status, setStatus] = useState<'published' | 'draft'>('published')
   const [editingSlug, setEditingSlug] = useState<string | null>(null)
@@ -327,8 +372,9 @@ export default function AdminPage() {
 
   const clearForm = () => {
     setTitle(''); setSlug(''); setCategory(CATEGORIES[0]); setTags('')
-    setExcerpt(''); setColor('cyan'); setContent(''); setStatus('published')
-    setEditingSlug(null); setEditorLabel('New Article'); setPreviewMode(false)
+    setExcerpt(''); setColor('cyan'); setCoverImage(''); setContent('')
+    setStatus('published'); setEditingSlug(null)
+    setEditorLabel('New Article'); setPreviewMode(false)
   }
 
   const insertMarkdown = (prefix: string, suffix = '', block = false, placeholder = '') => {
@@ -366,11 +412,8 @@ export default function AdminPage() {
     }, 0)
   }
 
-  // ── Paste handler: intercepts images/diagrams ──────────────────────────
   const handlePaste = useCallback(async (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const items = Array.from(e.clipboardData.items)
-
-    // ── 1. Image paste → upload to Cloudinary ──────────────────────────────
     const imageItem = items.find(item => item.type.startsWith('image/'))
     if (imageItem) {
       e.preventDefault()
@@ -390,33 +433,24 @@ export default function AdminPage() {
       return
     }
 
-    // ── 2. HTML paste containing a table → convert to Markdown ────────────
     const htmlItem = items.find(item => item.type === 'text/html')
     if (htmlItem) {
       htmlItem.getAsString((html) => {
-        if (!html.includes('<table')) return // no table — let default paste handle it
-
+        if (!html.includes('<table')) return
         e.preventDefault()
-
-        // Parse HTML and extract table(s)
         const parser = new DOMParser()
         const doc = parser.parseFromString(html, 'text/html')
         const tables = Array.from(doc.querySelectorAll('table'))
-
         if (tables.length === 0) return
-
         const markdownTables = tables.map((table) => {
           const rows = Array.from(table.querySelectorAll('tr'))
           if (rows.length === 0) return ''
-
           const parseRow = (row: Element) =>
             Array.from(row.querySelectorAll('th, td'))
               .map(cell => cell.textContent?.trim().replace(/\|/g, '\\|') || '')
-
           const headerRow = parseRow(rows[0])
           const separator = headerRow.map(() => '---')
           const bodyRows = rows.slice(1).map(parseRow)
-
           const lines = [
             `| ${headerRow.join(' | ')} |`,
             `| ${separator.join(' | ')} |`,
@@ -424,14 +458,11 @@ export default function AdminPage() {
           ]
           return lines.join('\n')
         })
-
         insertRaw('\n' + markdownTables.join('\n\n') + '\n')
         setToast('✓ Table converted to Markdown!')
       })
       return
     }
-
-    // ── 3. Plain text — default browser paste ─────────────────────────────
   }, [content])
 
   const handlePublish = async (s: 'published' | 'draft') => {
@@ -439,9 +470,16 @@ export default function AdminPage() {
     if (!token) return
     setLoading(true)
     const payload = {
-      title, slug: slug || slugify(title), category,
+      title,
+      slug: slug || slugify(title),
+      category,
       tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
-      excerpt, color, content, status: s, featured: false,
+      excerpt,
+      color,
+      cover_image: coverImage,   // ← NEW — sent to backend
+      content,
+      status: s,
+      featured: false,
     }
     try {
       if (editingSlug) {
@@ -463,6 +501,7 @@ export default function AdminPage() {
     setCategory(p.category || CATEGORIES[0])
     setTags((p.tags || []).join(', '))
     setExcerpt(p.excerpt || ''); setColor(p.color || 'cyan')
+    setCoverImage((p as any).cover_image || '')   // ← NEW
     setContent(p.content || '')
     setStatus((p.status as 'published' | 'draft') || 'published')
     setEditingSlug(p.slug || null)
@@ -575,6 +614,9 @@ export default function AdminPage() {
               <input style={inputStyle} value={excerpt} onChange={e => setExcerpt(e.target.value)} placeholder="Brief description for card preview..." />
             </div>
 
+            {/* ── Cover Image Upload ── */}
+            <CoverImageUploader value={coverImage} onChange={setCoverImage} />
+
             <div className="mb-4">
               <label style={labelStyle}>Cover Color Theme</label>
               <select style={{ ...inputStyle, cursor: 'pointer', appearance: 'none' }} value={color} onChange={e => setColor(e.target.value)}>
@@ -618,6 +660,8 @@ export default function AdminPage() {
             <div className="rounded-2xl p-6" style={{ background: '#0d1e2e', border: '1px solid #1a3048' }}>
               <div className="text-xs font-semibold tracking-widest uppercase mb-4" style={{ color: '#4a7a9b' }}>☁️ Image Workflow</div>
               <div className="text-xs leading-loose" style={{ color: '#4a7a9b' }}>
+                <strong style={{ color: '#00d4ff' }}>Cover image:</strong><br />
+                Upload above → replaces gradient banner ✓<br /><br />
                 <strong style={{ color: '#00d4ff' }}>Auto (recommended):</strong><br />
                 Copy any image → Paste in editor → Auto-uploads ✓<br /><br />
                 <strong style={{ color: '#8ab4d4' }}>Manual:</strong><br />
