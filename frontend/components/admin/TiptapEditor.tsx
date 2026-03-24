@@ -119,15 +119,22 @@ function TableModal({ onInsert, onClose }: { onInsert: (rows: number, cols: numb
 
 function TBtn({ label, title, onClick, active = false, disabled = false }: { label: string; title: string; onClick: () => void; active?: boolean; disabled?: boolean }) {
   return (
-    <button title={title} onClick={onClick} disabled={disabled} className="px-2.5 py-1.5 rounded-lg text-xs cursor-pointer transition-all select-none"
-      style={{ background: active ? 'rgba(0,212,255,0.15)' : 'transparent', border: active ? '1px solid rgba(0,212,255,0.4)' : '1px solid transparent', color: disabled ? '#2a4a6b' : active ? '#00d4ff' : '#8ab4d4', fontFamily: 'JetBrains Mono, monospace', cursor: disabled ? 'not-allowed' : 'pointer' }}>
+    <button title={title} onClick={onClick} disabled={disabled}
+      className="px-2.5 py-1.5 rounded-lg text-xs cursor-pointer transition-all select-none"
+      style={{
+        background: active ? 'rgba(0,119,204,0.12)' : 'transparent',
+        border: active ? '1px solid rgba(0,119,204,0.35)' : '1px solid transparent',
+        color: disabled ? '#bdc3ca' : active ? '#0077cc' : '#495057',
+        fontFamily: 'JetBrains Mono, monospace',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+      }}>
       {label}
     </button>
   )
 }
 
 function Div() {
-  return <span style={{ width: '1px', height: '18px', background: '#1a3048', display: 'inline-block', margin: '0 4px', verticalAlign: 'middle' }} />
+  return <span style={{ width: '1px', height: '18px', background: '#dee2e6', display: 'inline-block', margin: '0 4px', verticalAlign: 'middle' }} />
 }
 
 interface Props { value: string; onChange: (html: string) => void; placeholder?: string }
@@ -173,7 +180,6 @@ export default function TiptapEditor({ value, onChange, placeholder }: Props) {
   if (!editor) return null
 
   const wordCount = editor.getText().split(/\s+/).filter(Boolean).length
-
   return (
     <div style={{ position: 'relative' }}>
       <AnimatePresence>
@@ -181,57 +187,72 @@ export default function TiptapEditor({ value, onChange, placeholder }: Props) {
         {showTable && <TableModal onInsert={(r, c) => editor.chain().focus().insertTable({ rows: r, cols: c, withHeaderRow: true }).run()} onClose={() => setShowTable(false)} />}
       </AnimatePresence>
 
-      {/* Hint */}
-      <div className="flex items-center gap-2 px-3 py-2 mb-1 rounded-lg text-xs" style={{ background: 'rgba(0,212,255,0.05)', border: '1px solid rgba(0,212,255,0.1)', color: '#4a7a9b' }}>
-        <span style={{ color: '#00d4ff' }}>✨</span>
-        Paste images → auto-uploads to Cloudinary · Paste tables from Claude → renders instantly
-      </div>
+      {/* Document wrapper — light gray page, white document inside */}
+      <div style={{ background: '#f0f2f5', borderRadius: '12px', border: '1px solid #dee2e6', overflow: 'hidden' }}>
 
-      {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-1 px-3 py-2 rounded-t-xl" style={{ background: '#0a1929', border: '1px solid #1a3048', borderBottom: 'none' }}>
-        <TBtn label="H1" title="Heading 1" onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} active={editor.isActive('heading', { level: 1 })} />
-        <TBtn label="H2" title="Heading 2" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} active={editor.isActive('heading', { level: 2 })} />
-        <TBtn label="H3" title="Heading 3" onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} active={editor.isActive('heading', { level: 3 })} />
-        <Div />
-        <TBtn label="B" title="Bold" onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive('bold')} />
-        <TBtn label="I" title="Italic" onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive('italic')} />
-        <TBtn label="S̶" title="Strikethrough" onClick={() => editor.chain().focus().toggleStrike().run()} active={editor.isActive('strike')} />
-        <TBtn label="`" title="Inline code" onClick={() => editor.chain().focus().toggleCode().run()} active={editor.isActive('code')} />
-        <Div />
-        <TBtn label="```" title="Code block" onClick={() => editor.chain().focus().toggleCodeBlock().run()} active={editor.isActive('codeBlock')} />
-        <TBtn label="❝" title="Blockquote" onClick={() => editor.chain().focus().toggleBlockquote().run()} active={editor.isActive('blockquote')} />
-        <TBtn label="—" title="Horizontal rule" onClick={() => editor.chain().focus().setHorizontalRule().run()} />
-        <Div />
-        <TBtn label="• List" title="Bullet list" onClick={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive('bulletList')} />
-        <TBtn label="1. List" title="Numbered list" onClick={() => editor.chain().focus().toggleOrderedList().run()} active={editor.isActive('orderedList')} />
-        <Div />
-        <TBtn label={uploading ? '⏳' : '🖼 Image'} title="Insert image" onClick={() => setShowImage(true)} />
-        <TBtn label="📊 Table" title="Insert table" onClick={() => setShowTable(true)} />
-        {editor.isActive('table') && <>
-          <Div />
-          <TBtn label="+Col" title="Add column" onClick={() => editor.chain().focus().addColumnAfter().run()} />
-          <TBtn label="-Col" title="Delete column" onClick={() => editor.chain().focus().deleteColumn().run()} />
-          <TBtn label="+Row" title="Add row" onClick={() => editor.chain().focus().addRowAfter().run()} />
-          <TBtn label="-Row" title="Delete row" onClick={() => editor.chain().focus().deleteRow().run()} />
-          <TBtn label="✕ Tbl" title="Delete table" onClick={() => editor.chain().focus().deleteTable().run()} />
-        </>}
-        <div className="ml-auto flex gap-1">
-          <TBtn label="↩" title="Undo" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} />
-          <TBtn label="↪" title="Redo" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} />
+        {/* Hint bar */}
+        <div className="flex items-center gap-2 px-4 py-2 text-xs" style={{ background: '#e8f4fb', borderBottom: '1px solid #d0e8f5', color: '#5a8fa8' }}>
+          <span style={{ color: '#0077cc' }}>✨</span>
+          Paste images → auto-uploads · Paste tables from Claude → renders instantly
         </div>
-      </div>
 
-      {/* Editor */}
-      <div style={{ background: '#ffffff', border: '1px solid #1a3048', borderRadius: '0 0 10px 10px', minHeight: '400px', padding: '24px 28px' }}>
-        <EditorContent editor={editor} />
+        {/* Toolbar — light theme */}
+        <div className="flex flex-wrap items-center gap-1 px-3 py-2"
+          style={{ background: '#ffffff', borderBottom: '1px solid #e9ecef' }}>
+          <TBtn label="H1" title="Heading 1" onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} active={editor.isActive('heading', { level: 1 })} />
+          <TBtn label="H2" title="Heading 2" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} active={editor.isActive('heading', { level: 2 })} />
+          <TBtn label="H3" title="Heading 3" onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} active={editor.isActive('heading', { level: 3 })} />
+          <Div />
+          <TBtn label="B" title="Bold" onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive('bold')} />
+          <TBtn label="I" title="Italic" onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive('italic')} />
+          <TBtn label="S̶" title="Strikethrough" onClick={() => editor.chain().focus().toggleStrike().run()} active={editor.isActive('strike')} />
+          <TBtn label="`" title="Inline code" onClick={() => editor.chain().focus().toggleCode().run()} active={editor.isActive('code')} />
+          <Div />
+          <TBtn label="```" title="Code block" onClick={() => editor.chain().focus().toggleCodeBlock().run()} active={editor.isActive('codeBlock')} />
+          <TBtn label="❝" title="Blockquote" onClick={() => editor.chain().focus().toggleBlockquote().run()} active={editor.isActive('blockquote')} />
+          <TBtn label="—" title="Horizontal rule" onClick={() => editor.chain().focus().setHorizontalRule().run()} />
+          <Div />
+          <TBtn label="• List" title="Bullet list" onClick={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive('bulletList')} />
+          <TBtn label="1. List" title="Numbered list" onClick={() => editor.chain().focus().toggleOrderedList().run()} active={editor.isActive('orderedList')} />
+          <Div />
+          <TBtn label={uploading ? '⏳' : '🖼 Image'} title="Insert image" onClick={() => setShowImage(true)} />
+          <TBtn label="📊 Table" title="Insert table" onClick={() => setShowTable(true)} />
+          {editor.isActive('table') && <>
+            <Div />
+            <TBtn label="+Col" title="Add column" onClick={() => editor.chain().focus().addColumnAfter().run()} />
+            <TBtn label="-Col" title="Delete column" onClick={() => editor.chain().focus().deleteColumn().run()} />
+            <TBtn label="+Row" title="Add row" onClick={() => editor.chain().focus().addRowAfter().run()} />
+            <TBtn label="-Row" title="Delete row" onClick={() => editor.chain().focus().deleteRow().run()} />
+            <TBtn label="✕ Tbl" title="Delete table" onClick={() => editor.chain().focus().deleteTable().run()} />
+          </>}
+          <div className="ml-auto flex gap-1">
+            <TBtn label="↩" title="Undo" onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} />
+            <TBtn label="↪" title="Redo" onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} />
+          </div>
+        </div>
+
+        {/* White document writing area */}
+        <div style={{
+          background: '#ffffff',
+          minHeight: '500px',
+          padding: '40px 56px',
+          maxWidth: '860px',
+          margin: '24px auto',
+          borderRadius: '8px',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+          border: '0.5px solid #e9ecef',
+        }}>
+          <EditorContent editor={editor} />
+        </div>
+
       </div>
 
       <div className="flex gap-3 mt-2">
-        <span className="text-xs" style={{ color: '#2a4a6b' }}>{wordCount} words · ~{Math.ceil(wordCount / 200)} min read</span>
+        <span className="text-xs" style={{ color: '#6c757d' }}>{wordCount} words · ~{Math.ceil(wordCount / 200)} min read</span>
       </div>
 
       <style>{`
-        .tiptap-content { font-family: Georgia, serif; font-size: 16px; line-height: 1.8; color: #1a1a1a; min-height: 360px; outline: none; }
+        .tiptap-content { font-family: Georgia, serif; font-size: 17px; line-height: 1.85; color: #1a1a1a; min-height: 420px; outline: none; }
         .tiptap-content h1 { font-size: 2rem; font-weight: 800; margin: 1.5rem 0 0.75rem; color: #111; letter-spacing: -0.5px; line-height: 1.2; }
         .tiptap-content h2 { font-size: 1.5rem; font-weight: 700; margin: 1.5rem 0 0.75rem; color: #111; border-bottom: 2px solid #f3f4f6; padding-bottom: 6px; }
         .tiptap-content h3 { font-size: 1.2rem; font-weight: 700; margin: 1.25rem 0 0.5rem; color: #1f2937; }
@@ -259,4 +280,4 @@ export default function TiptapEditor({ value, onChange, placeholder }: Props) {
       `}</style>
     </div>
   )
-}
+  }
