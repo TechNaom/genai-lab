@@ -624,14 +624,14 @@ export default function AdminPage() {
               </select>
             </div>
 
-            <div>
-              <label style={labelStyle}>Content</label>
+            <div style={{ margin: '0 -7px' }}>
+              <label style={{ ...labelStyle, marginLeft: '7px' }}>Content</label>
               <TiptapEditor
                 value={content}
                 onChange={setContent}
                 placeholder="Start writing your article... Paste images or tables from Claude directly!"
               />
-            </div>
+          </div>
           </div>
 
           {/* Sidebar */}
