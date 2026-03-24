@@ -340,7 +340,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     const related = all
       .filter(p => p.slug !== slug && (p.category === post.category || p.tags?.some(t => post.tags?.includes(t))))
       .slice(0, 3)
-    return { props: { post, related }, revalidate: 60 }
+    return { props: { post, related }, revalidate: 1 }
   } catch {
     return { notFound: true }
   }
