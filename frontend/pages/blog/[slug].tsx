@@ -33,7 +33,6 @@ function TOC({ content, title }: { content: string; title: string }) {
   const [tocCopied, setTocCopied] = useState(false)
   const headings: { level: number; text: string; id: string }[] = []
 
-  // Parse HTML <h2> and <h3> tags (content is stored as HTML, not Markdown)
   const allMatches: { index: number; level: number; text: string }[] = []
 
   ;[...content.matchAll(/<h2[^>]*>(.*?)<\/h2>/gi)].forEach(m => {
@@ -55,11 +54,9 @@ function TOC({ content, title }: { content: string; title: string }) {
 
   const handleTocShare = (icon: string) => {
     const url = typeof window !== 'undefined' ? window.location.href : ''
-    if (icon === '𝕏') {
-      shareOnX(url, title)
-    } else if (icon === 'in') {
-      shareOnLinkedIn(url)
-    } else if (icon === '🔗') {
+    if (icon === '𝕏') shareOnX(url, title)
+    else if (icon === 'in') shareOnLinkedIn(url)
+    else if (icon === '🔗') {
       navigator.clipboard?.writeText(url)
       setTocCopied(true)
       setTimeout(() => setTocCopied(false), 2000)
@@ -126,15 +123,14 @@ function TOC({ content, title }: { content: string; title: string }) {
 export default function ArticlePage({ post, related }: Props) {
   const [copied, setCopied] = useState(false)
   const grad = COVER_GRADIENTS[post.color || 'cyan']
+  const coverImage = (post as any).cover_image || ''
 
   const getPageUrl = () => typeof window !== 'undefined' ? window.location.href : ''
-
   const handleCopy = () => {
     navigator.clipboard?.writeText(getPageUrl())
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
-
   const handleShareX = () => shareOnX(getPageUrl(), post.title)
   const handleShareLinkedIn = () => shareOnLinkedIn(getPageUrl())
 
@@ -149,15 +145,54 @@ export default function ArticlePage({ post, related }: Props) {
         tags={post.tags}
       />
 
-      {/* Cover banner — full width, dark themed */}
-      <div
-        className="w-full flex items-center justify-center overflow-hidden"
-        style={{ background: grad, height: '320px' }}
-      >
-        <span className="text-9xl opacity-15 select-none">
-          {CAT_EMOJI[post.category || ''] || '📄'}
-        </span>
-      </div>
+      {/* ── Cover Banner ─────────────────────────────────────────────────────── */}
+      {coverImage ? (
+        // Real photo uploaded via admin — full bleed with gradient overlay
+        <div className="w-full relative overflow-hidden" style={{ height: '420px' }}>
+          <img
+            src={coverImage}
+            alt={post.title}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'center',
+              display: 'block',
+            }}
+          />
+          {/* Dark gradient overlay — bottom fade into page background */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background: 'linear-gradient(to bottom, rgba(8,15,23,0.1) 0%, rgba(8,15,23,0.5) 60%, rgba(8,15,23,0.92) 100%)',
+            }}
+          />
+          {/* Category emoji badge pinned at bottom-center */}
+          <div className="absolute bottom-6 left-1/2" style={{ transform: 'translateX(-50%)' }}>
+            <span
+              className="text-3xl px-4 py-2 rounded-xl"
+              style={{
+                background: 'rgba(13,30,46,0.75)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(0,212,255,0.2)',
+                display: 'inline-block',
+              }}
+            >
+              {CAT_EMOJI[post.category || ''] || '📄'}
+            </span>
+          </div>
+        </div>
+      ) : (
+        // Fallback: gradient + big faded emoji (original behaviour)
+        <div
+          className="w-full flex items-center justify-center overflow-hidden"
+          style={{ background: grad, height: '320px' }}
+        >
+          <span className="text-9xl opacity-15 select-none">
+            {CAT_EMOJI[post.category || ''] || '📄'}
+          </span>
+        </div>
+      )}
 
       <div
         className="max-w-6xl mx-auto px-6 py-10"
