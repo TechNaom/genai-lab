@@ -9,6 +9,7 @@ export interface Post {
   tags?: string[]
   excerpt?: string
   color?: string
+  cover_image?: string   
   status?: string
   featured?: boolean
   readTime?: number
