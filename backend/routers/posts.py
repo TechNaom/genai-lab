@@ -137,6 +137,7 @@ def create_post(post: PostCreate, _: bool = Depends(verify_admin)):
         "color": post.color or "cyan",
         "status": post.status or "published",
         "featured": post.featured or False,
+        "coverImage": post.coverImage or "",
     }
 
     write_post(filepath, frontmatter, post.content or "")
