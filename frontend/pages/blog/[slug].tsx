@@ -108,6 +108,10 @@ export default function ArticlePage({ post, related }: Props) {
           {/* ── White article card — Hashnode style ── */}
           <div className="article-card">
             <div className="article-body">
+              {/* Smart renderer: HTML (Tiptap) or Markdown (legacy) */}
+              {post.content?.trim().startsWith('<') ? (
+                <div dangerouslySetInnerHTML={{ __html: post.content || '' }} />
+              ) : (
               <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSlug]}
                 components={{
                   code({ node, className, children, ...props }: any) {
@@ -184,6 +188,7 @@ export default function ArticlePage({ post, related }: Props) {
                   },
                 }}
               >{post.content || ''}</ReactMarkdown>
+              )}
             </div>
           </div>
 
