@@ -11,6 +11,7 @@ class PostBase(BaseModel):
     color: Optional[str] = "cyan"
     status: Optional[str] = "published"
     featured: Optional[bool] = False
+    coverImage: Optional[str] = ""  # Cloudinary URL
 
 
 class PostCreate(PostBase):
@@ -27,6 +28,7 @@ class PostUpdate(BaseModel):
     status: Optional[str] = None
     featured: Optional[bool] = None
     content: Optional[str] = None
+    coverImage: Optional[str] = None  # Cloudinary URL
 
 
 class PostListItem(BaseModel):
@@ -40,6 +42,7 @@ class PostListItem(BaseModel):
     status: Optional[str] = "published"
     featured: Optional[bool] = False
     readTime: Optional[int] = 5
+    coverImage: Optional[str] = ""  # Cloudinary URL
 
     class Config:
         extra = "allow"
